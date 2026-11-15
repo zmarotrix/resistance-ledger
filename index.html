@@ -3,960 +3,386 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="How spell resistance works in Classic WoW, which raid fights need it, how guilds skip it, and what WoW Forever has confirmed. Interactive charts, a simulator, and 38 sources.">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>The Resistance Ledger</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Why raiders wear magic resistance gear in Classic WoW: how resistance works, which bosses demand it during progression and on farm, how guilds skip it, and what WoW Forever has confirmed. Checked against VMaNGOS, with interactive simulators.">
+<meta name="theme-color" content="#0c0a09">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral+SC:wght@500;700&family=Spectral:ital,wght@0,400;0,600;1,400&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<style>
-/* Layout: one long reading column (68ch) on a cool slate ground; figures break out wider and sit on the page, not in boxes. The five spell schools are the only colour. */
-:root{
-  --bg:#eceff4; --bg2:#e1e5ed; --ink:#141824; --muted:#545d71; --rule:#c3cad8;
-  --accent:#5b36a8; --accent-ink:#ffffff;
-  --fire:#c2410c; --frost:#13719f; --nature:#2f7d22; --shadow:#6a3fa0; --arcane:#a52a8f;
-  --good:#23704a; --warn:#8f5a00; --bad:#ad2318;
-  --f-display:"Spectral SC", "Iowan Old Style", Georgia, serif;
-  --f-serif:"Spectral", "Iowan Old Style", Georgia, serif;
-  --f-sans:"Alegreya Sans", "Segoe UI", system-ui, sans-serif;
-  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0d1017; --bg2:#151a24; --ink:#e5e8ef; --muted:#9aa3b7; --rule:#2a3245;
-  --accent:#b294ff; --accent-ink:#120c22;
-  --fire:#ff8c52; --frost:#6cc6f7; --nature:#8fd66f; --shadow:#b897f2; --arcane:#ee86d9;
-  --good:#5fd39a; --warn:#f2b54a; --bad:#ff7a6e; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0d1017; --bg2:#151a24; --ink:#e5e8ef; --muted:#9aa3b7; --rule:#2a3245;
-  --accent:#b294ff; --accent-ink:#120c22;
-  --fire:#ff8c52; --frost:#6cc6f7; --nature:#8fd66f; --shadow:#b897f2; --arcane:#ee86d9;
-  --good:#5fd39a; --warn:#f2b54a; --bad:#ff7a6e; color-scheme:dark}
-
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
-body{background:var(--bg);color:var(--ink);font:400 1.06rem/1.62 var(--f-sans);
-  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
-a{color:var(--accent)}
-a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-h1,h2,h3{font-family:var(--f-display);font-weight:700;text-wrap:balance;line-height:1.12;margin:0}
-h2{font-size:clamp(1.8rem,4.2vw,2.7rem);letter-spacing:.01em}
-h3{font-size:1.32rem;font-weight:500}
-p{margin:0}
-.prose{max-width:68ch;margin-inline:auto;display:flex;flex-direction:column;gap:1rem}
-.prose p{font-family:var(--f-serif);font-size:1.1rem}
-.wide{max-width:1120px;margin-inline:auto}
-.eyebrow{font:500 .78rem/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-sup.c{font:500 .68em/0 var(--f-mono);margin-left:1px}
-sup.c a{text-decoration:none;padding:0 1px}
-sup.c a:hover{text-decoration:underline}
-.fire{color:var(--fire)}.frost{color:var(--frost)}.nature{color:var(--nature)}.shadow{color:var(--shadow)}.arcane{color:var(--arcane)}
-
-/* nav */
-nav.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule);margin-inline:calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));padding-inline:max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px))}
-nav.top .in{max-width:1120px;margin-inline:auto;display:flex;gap:1.2rem;align-items:center;overflow-x:auto;padding-block:.6rem;scrollbar-width:none}
-nav.top a{font:500 .82rem/1 var(--f-mono);letter-spacing:.06em;color:var(--muted);text-decoration:none;white-space:nowrap}
-nav.top a:hover{color:var(--ink)}
-nav.top .brand{font:700 1rem/1 var(--f-display);color:var(--ink);letter-spacing:.04em}
-
-section{padding-block:clamp(3rem,8vw,5.5rem);border-bottom:1px solid var(--rule)}
-section > .head{max-width:68ch;margin:0 auto 2rem;display:flex;flex-direction:column;gap:.7rem}
-section > .head p{font-family:var(--f-serif);font-size:1.15rem;color:var(--muted)}
-
-/* hero */
-.hero{padding-block:clamp(2.5rem,6vw,4rem) 0;border-bottom:0}
-.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:2.5rem;align-items:center}
-.hero h1{font-size:clamp(2.6rem,7vw,5rem);letter-spacing:.005em}
-.hero h1 em{font-style:normal;color:var(--accent)}
-.hero .lede{font:400 1.22rem/1.55 var(--f-serif);max-width:52ch;margin-top:1.1rem}
-.hero .meta{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin-top:1.4rem}
-#heroCanvas{width:100%;aspect-ratio:5/4;max-width:100%;display:block}
-.formula-banner{margin-top:1.6rem;font:500 clamp(.9rem,2.2vw,1.08rem)/1.5 var(--f-mono);padding:.9rem 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);overflow-x:auto;white-space:nowrap}
-@media (max-width:820px){.hero-grid{grid-template-columns:1fr}}
-
-/* marquee */
-.frieze{margin-inline:calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px)));overflow:hidden;border-block:1px solid var(--rule);background:var(--bg2);padding-block:1rem}
-.frieze-track{display:flex;gap:2.6rem;width:max-content;animation:roll 70s linear infinite}
-.frieze:hover .frieze-track{animation-play-state:paused}
-@keyframes roll{to{transform:translateX(-50%)}}
-@media (prefers-reduced-motion: reduce){.frieze{overflow-x:auto}.frieze-track{animation:none}}
-.fz{display:flex;gap:.8rem;align-items:center;white-space:nowrap}
-.fz svg{width:56px;height:56px;flex:none}
-.fz b{font:700 1.05rem/1.1 var(--f-display);display:block}
-.fz span{font:400 .8rem/1.3 var(--f-mono);color:var(--muted)}
-
-/* scrolly pipeline */
-.scrolly{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:3rem;max-width:1120px;margin-inline:auto}
-.scrolly .steps{display:flex;flex-direction:column;gap:30vh;padding-block:10vh 20vh}
-.scrolly .step{border-left:3px solid var(--rule);padding-left:1.1rem;transition:border-color .3s, opacity .3s;opacity:.55}
-.scrolly .step.on{border-color:var(--accent);opacity:1}
-.scrolly .step h3{margin-bottom:.4rem}
-.scrolly .step p{font-family:var(--f-serif)}
-.scrolly .stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + 4.5rem);height:fit-content}
-#pipe{width:100%;height:auto;max-width:100%}
-#pipe .node rect{fill:var(--bg2);stroke:var(--rule);stroke-width:1.5;transition:stroke .3s, fill .3s}
-#pipe .node text{fill:var(--ink);font:500 13px var(--f-sans)}
-#pipe .node .sub{fill:var(--muted);font:400 11px var(--f-mono)}
-#pipe .edge{stroke:var(--rule);stroke-width:2;fill:none;transition:stroke .3s}
-#pipe .lbl{fill:var(--muted);font:500 11px var(--f-mono)}
-#pipe .on rect{stroke:var(--accent);stroke-width:2.5}
-#pipe .edge.on{stroke:var(--accent)}
-@media (max-width:820px){.scrolly{grid-template-columns:1fr;gap:1rem}.scrolly .stage{top:calc(env(safe-area-inset-top,0px) + 2.8rem);background:var(--bg);z-index:2;padding-block:.5rem;border-bottom:1px solid var(--rule)}.scrolly .steps{gap:40vh;padding-block:4vh 30vh}}
-
-/* figures */
-figure{margin:2.4rem auto;max-width:880px}
-figure.wide{max-width:1120px}
-figcaption{font:400 .86rem/1.5 var(--f-mono);color:var(--muted);margin-top:.7rem;max-width:80ch}
-.chart{width:100%;height:auto;display:block;overflow:visible}
-.chart .grid line{stroke:var(--rule);stroke-width:1}
-.chart .axis text{fill:var(--muted);font:400 11px var(--f-mono)}
-.chart .axis .title{fill:var(--ink);font:500 12px var(--f-sans)}
-.chart .lab{font:500 11.5px var(--f-mono)}
-.ctrls{display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:end;margin-block:1rem}
-.ctrl{display:flex;flex-direction:column;gap:.3rem;min-width:min(240px,100%)}
-.ctrl label{font:500 .8rem/1.2 var(--f-mono);letter-spacing:.04em;color:var(--muted)}
-.ctrl output{font:500 1rem var(--f-mono);color:var(--ink)}
-input[type=range]{width:100%;accent-color:var(--accent)}
-select,button{font:500 .95rem var(--f-sans);color:var(--ink);background:var(--bg2);border:1px solid var(--rule);border-radius:6px;padding:.45rem .7rem}
-button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;cursor:pointer}
-button{cursor:pointer}
-.seg{display:inline-flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden}
-.seg button{border:0;border-radius:0;background:transparent}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
-
-/* equation */
-.eq{font:500 clamp(.92rem,2.4vw,1.12rem)/1.7 var(--f-mono);padding:1.1rem 0 1.1rem 1.2rem;border-left:3px solid var(--accent);overflow-x:auto;max-width:68ch;margin:1.4rem auto;white-space:pre}
-.eq .k{color:var(--accent)}
-
-/* tables */
-.tbl-wrap{overflow-x:auto;max-width:1120px;margin-inline:auto}
-table{border-collapse:collapse;width:100%;font-size:.95rem}
-th,td{text-align:left;vertical-align:top;padding:.7rem .8rem .7rem 0;border-bottom:1px solid var(--rule)}
-th{font:500 .74rem/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-td.boss{font:700 1.05rem/1.2 var(--f-display);white-space:nowrap}
-tr.raid td{border-bottom:2px solid var(--ink);padding-top:2rem}
-tr.raid td h3{font-size:1.5rem}
-tr.raid td span{font:400 .85rem var(--f-mono);color:var(--muted);margin-left:.6rem}
-.pill{display:inline-block;font:500 .72rem/1 var(--f-mono);padding:.28rem .5rem;border-radius:99px;border:1px solid currentColor;white-space:nowrap;letter-spacing:.03em}
-.pill.req{color:var(--bad)}.pill.some{color:var(--warn)}.pill.none{color:var(--good)}
-.tbl-num{font-variant-numeric:tabular-nums}
-
-/* simulator */
-.sim{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:2.5rem;max-width:1120px;margin-inline:auto}
-.sim .side{display:flex;flex-direction:column;gap:1rem}
-.sim .out{display:flex;flex-direction:column;gap:1.5rem;min-width:0}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem 1.5rem;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding-block:1rem}
-.stat .v{font:500 1.6rem/1.1 var(--f-mono);font-variant-numeric:tabular-nums}
-.stat .k{font:500 .74rem/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.stat .d{font:400 .8rem var(--f-mono);color:var(--muted)}
-.log{font:400 .82rem/1.55 var(--f-mono);max-height:15.5em;overflow:auto;border-left:2px solid var(--rule);padding-left:.9rem;font-variant-numeric:tabular-nums}
-.log .miss{color:var(--muted)}.log .full{color:var(--bad)}.log .part{color:var(--warn)}.log .hit{color:var(--good)}
-.chk{display:flex;gap:.5rem;align-items:flex-start;font-size:.95rem}
-.chk input{margin-top:.3rem;accent-color:var(--accent)}
-@media (max-width:820px){.sim{grid-template-columns:1fr}}
-
-/* verdict list */
-.myths{max-width:900px;margin-inline:auto;display:flex;flex-direction:column}
-.myth{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.4rem;padding-block:1.6rem;border-bottom:1px solid var(--rule)}
-.stamp{font:700 .9rem/1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;border:2px solid currentColor;padding:.5rem .4rem;text-align:center;transform:rotate(-4deg);height:fit-content;border-radius:3px}
-.stamp.f{color:var(--bad)}.stamp.p{color:var(--warn)}.stamp.t{color:var(--good)}.stamp.u{color:var(--muted)}
-.myth h3{font-family:var(--f-serif);font-style:italic;font-weight:400;font-size:1.3rem;margin-bottom:.5rem}
-.myth p{font-family:var(--f-serif)}
-@media (max-width:560px){.myth{grid-template-columns:1fr;gap:.8rem}.stamp{width:fit-content}}
-
-/* forever ledger */
-.ledger{max-width:1120px;margin-inline:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2.2rem}
-.ledger .col h3{padding-bottom:.6rem;border-bottom:2px solid currentColor;margin-bottom:.4rem}
-.ledger .col.b h3{color:var(--good)}.ledger .col.g h3{color:var(--warn)}.ledger .col.f h3{color:var(--accent)}
-.ledger ul{list-style:none;padding:0;margin:0}
-.ledger li{padding-block:.75rem;border-bottom:1px solid var(--rule);font-size:.98rem}
-@media (max-width:900px){.ledger{grid-template-columns:1fr}}
-
-.grade{font:500 .7rem/1 var(--f-mono);padding:.2rem .4rem;border-radius:3px;vertical-align:.1em;margin-right:.3rem;color:var(--bg)}
-.grade.B{background:var(--good)}.grade.D{background:var(--frost)}.grade.G{background:var(--warn)}.grade.F{background:var(--accent)}
-
-ol.src{max-width:900px;margin-inline:auto;padding-left:2.4rem;font-size:.93rem;display:flex;flex-direction:column;gap:.55rem}
-ol.src li{overflow-wrap:anywhere}
-ol.src li:target{background:color-mix(in srgb,var(--accent) 16%,transparent)}
-ol.src .note{color:var(--muted)}
-footer{padding-block:3rem;text-align:center;color:var(--muted);font:400 .85rem/1.6 var(--f-mono)}
-.callout{max-width:68ch;margin:1.6rem auto;padding:1rem 0 1rem 1.2rem;border-left:3px solid var(--warn);font-family:var(--f-serif)}
-.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2.5rem;max-width:1120px;margin-inline:auto}
-@media (max-width:820px){.two{grid-template-columns:1fr}}
-/* plain-language layer */
-.plain{max-width:68ch;margin:0 auto 1.6rem;padding:.9rem 0 .9rem 1.2rem;border-left:4px solid var(--good);font:500 1.12rem/1.55 var(--f-sans)}
-.plain b.tag{font:700 .72rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--good);display:block;margin-bottom:.35rem}
-details.tech{max-width:68ch;margin:1.4rem auto;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-details.tech > summary{cursor:pointer;list-style:none;padding:.8rem 0;font:500 .85rem/1.2 var(--f-mono);letter-spacing:.06em;color:var(--accent);display:flex;gap:.6rem;align-items:center}
-details.tech > summary::-webkit-details-marker{display:none}
-details.tech > summary::before{content:"+";font:700 1.1rem/1 var(--f-mono);width:1rem;text-align:center}
-details.tech[open] > summary::before{content:"−"}
-details.tech > .body{display:flex;flex-direction:column;gap:1rem;padding-bottom:1.2rem}
-details.tech .eq,details.tech .callout{margin:0}
-.short{max-width:1120px;margin-inline:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:0 2.5rem}
-.short p{padding-block:1rem;border-bottom:1px solid var(--rule);font:400 1.08rem/1.5 var(--f-sans)}
-.short p b{display:block;font:700 1.15rem/1.25 var(--f-display);margin-bottom:.25rem}
-dl.gloss{max-width:900px;margin-inline:auto;display:grid;grid-template-columns:minmax(9rem,auto) 1fr;gap:0 1.6rem}
-dl.gloss dt,dl.gloss dd{padding-block:.7rem;border-bottom:1px solid var(--rule);margin:0}
-dl.gloss dt{font:700 1rem/1.3 var(--f-display)}
-@media (max-width:560px){dl.gloss{grid-template-columns:1fr}dl.gloss dt{border-bottom:0;padding-bottom:0}}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:.3rem 1rem;font:400 .92rem/1.4 var(--f-mono)}
-.kv dt{color:var(--muted)}.kv dd{margin:0}
-</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Alegreya+Sans:wght@400;500;700&family=Alegreya:ital,wght@1,500&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
 </head>
 <body>
-
-
-<nav class="top" aria-label="Sections"><div class="in">
+<div class="progress" aria-hidden="true"></div>
+<nav class="top" aria-label="Chapters"><div class="in">
   <a class="brand" href="#top">Resistance Ledger</a>
-  <a href="#short">Short version</a><a href="#rolls">Two rolls</a><a href="#hit">Hit</a><a href="#resist">Resistance</a><a href="#partial">Partials</a><a href="#binary">Binary</a><a href="#sim">Simulator</a><a href="#raids">Raids</a><a href="#stack">Stack calculator</a><a href="#skip">Skipping</a><a href="#forever">Forever</a><a href="#myths">Misconceptions</a><a href="#glossary">Glossary</a><a href="#sources">Sources</a>
+  <a href="#why">Why</a><a href="#arena">Survive it</a><a href="#how">How it works</a><a href="#phase">Progression vs farm</a><a href="#raids">The raids</a><a href="#stack">Stack</a><a href="#sim">Simulator</a><a href="#forever">Forever</a><a href="#myths">Myths</a><a href="vmangos.html">VMaNGOS</a><a href="#sources">Sources</a>
+  <span class="xp" title="Chapters explored"><span class="xpbar"><i id="xpFill"></i></span><span id="xpTxt">0 / 10</span></span>
 </div></nav>
 
-<header class="hero wide" id="top">
-  <div class="hero-grid">
-    <div>
-      <p class="eyebrow">Classic WoW · patch 1.12 rules · WoW Forever outlook</p>
-      <h1>Every spell rolls <em>twice</em>.</h1>
-      <p class="lede">A spell first rolls to hit, then rolls against the target's resistance. This page shows both rolls with the numbers behind them. It covers every raid encounter where resistance matters, shows which ones guilds skip and how, and sets out what WoW Forever has actually confirmed. Every claim carries a numbered source, and the simulator lets you check the maths yourself.</p>
-      <div class="meta">
-        <span class="eyebrow"><span class="grade B">B</span>Blizzard said it</span>
-        <span class="eyebrow"><span class="grade D">D</span>Documented (wiki, patch notes, tooltips)</span>
-        <span class="eyebrow"><span class="grade G">G</span>Guide or player testing</span>
-        <span class="eyebrow"><span class="grade F">F</span>Our forecast</span>
-      </div>
+<header class="hero bleed" id="top">
+  <div class="art" role="img" aria-label="Molten Core loading screen: a lake of lava with Ragnaros rising in the distance"></div>
+  <canvas id="embers" aria-hidden="true"></canvas>
+  <div class="in">
+    <p class="eyebrow" style="color:#f0d8b8">Classic WoW · patch 1.12 · checked against VMaNGOS · WoW Forever outlook</p>
+    <h1>Why raiders wear <span class="burn">fire resistance</span>.</h1>
+    <p class="lede">Ragnaros's fire, Sapphiron's frost and Huhuran's poison can kill a fully healed raider faster than healers keep up. Resistance gear cuts that damage by up to about 70%. This site shows how much, which fights need it while you're progressing and which still need it once your raid is geared, and when you can skip it. You can test every claim yourself.</p>
+    <div class="cta"><a class="btn hot" href="#arena">Try to survive Ragnaros</a><a class="btn" href="#why">The 10-second answer</a></div>
+    <div class="legend">
+      <span class="eyebrow" style="color:#e6d4bd"><span class="grade B">B</span>Blizzard said it</span>
+      <span class="eyebrow" style="color:#e6d4bd"><span class="grade V">V</span>Checked in VMaNGOS</span>
+      <span class="eyebrow" style="color:#e6d4bd"><span class="grade D">D</span>Documented</span>
+      <span class="eyebrow" style="color:#e6d4bd"><span class="grade G">G</span>Guide or player test</span>
+      <span class="eyebrow" style="color:#e6d4bd"><span class="grade F">F</span>Our read</span>
     </div>
-    <canvas id="heroCanvas" aria-label="Animated spells hitting a warded target, each showing a hit, partial resist or full resist"></canvas>
   </div>
-  <div class="formula-banner" aria-label="Core formula">average resist = min( 75% , 0.75 × resistance ÷ (5 × caster level) )   ·   315 resistance ⇒ 75% vs a level-63 boss<sup class="c"><a href="#s1">1</a></sup></div>
 </header>
 
-<div class="frieze" aria-label="Raid bosses where resistance comes up">
-  <div class="frieze-track" id="frieze"></div>
+<div class="schools bleed" aria-label="The five schools resistance works against">
+  <span class="school fire"><img src="img/icons/res-fire.png" alt="">Fire</span>
+  <span class="school frost"><img src="img/icons/res-frost.png" alt="">Frost</span>
+  <span class="school nature"><img src="img/icons/res-nature.png" alt="">Nature</span>
+  <span class="school shadow"><img src="img/icons/res-shadow.png" alt="">Shadow</span>
+  <span class="school arcane"><img src="img/icons/res-arcane.png" alt="">Arcane</span>
+  <span class="school holy">· not Holy, not physical</span>
 </div>
 
-<!-- ============ SHORT VERSION ============ -->
-<section id="short">
-  <div class="head">
-    <p class="eyebrow">Start here · two-minute version</p>
-    <h2>The short version</h2>
-    <p>No maths needed. Each chapter below opens with a green "In plain words" box like these. The formulas and the arguments between sources sit in <span style="color:var(--accent)">+ Technical detail</span> sections you can open if you want them.</p>
-  </div>
-  <div class="short">
-    <p><b>Resistance is a shield against magic.</b>It works against fire, frost, nature, shadow and arcane. More points means less magic damage, on average.</p>
-    <p><b>315 is the number that matters in raids.</b>At 315 a raid boss's spells do 75% less damage to you on average. That's the most resistance can ever do. Points past 315 do nothing.</p>
-    <p><b>A "resist" on your own spells is usually a miss.</b>Bosses count as three levels higher than you, so about 1 spell in 6 misses. Hit gear fixes that, up to +16%.</p>
-    <p><b>Most raids only need it on the tanks.</b>Modern guilds skip resistance gear almost everywhere. Usually only the tanks wear it, or a few players who soak the damage.</p>
-    <p><b>Two fights you can't skip.</b>Sapphiron needs frost resistance on the whole raid. Nefarian needs everyone in an Onyxia Scale Cloak.</p>
-    <p><b>WoW Forever: too early to say.</b>Its first raids open on 9 December. Blizzard's only advice so far is to bring fire resistance for Onyxia. Guides say the first raid tier has no resistance gear sets.</p>
+<!-- ============ WHY ============ -->
+<section id="why" data-ch>
+  <div class="wide">
+    <div class="chap rv"><span class="num">I</span><p class="eyebrow">The 10-second answer</p><h2>Why the gear exists</h2></div>
+    <div class="tldr rv"><span class="tag">10-second version</span><p>Some bosses deal <b>constant magic damage</b>, more than your healers can keep up with. Resistance is the only stat that shrinks magic damage, by up to <b>75% on paper</b> (about <b>69%</b> in practice) at <b>315 points</b>. On those fights the gear makes the damage healable. Once your raid has more healing and kills faster, many of those fights stop needing it.</p></div>
+    <div class="readout rv" style="margin-top:1.4rem">
+      <div class="big"><span class="k">At 0 resistance</span><span class="v fire">100%</span><span class="d">of a boss's fire damage lands</span></div>
+      <div class="big"><span class="k">At 150 resistance</span><span class="v" style="color:var(--warn)">~64%</span><span class="d">lands on average vs a level-63 boss</span></div>
+      <div class="big"><span class="k">At 315 resistance</span><span class="v" style="color:var(--good)">~31%</span><span class="d">lands in VMaNGOS (25% on paper)</span></div>
+      <div class="big"><span class="k">Needed even on farm</span><span class="v">2</span><span class="d">Sapphiron (frost resistance) and Nefarian (the cloak)</span></div>
+    </div>
+    <details class="deep rv"><summary><span class="lvl">Go deeper</span>Why not just heal through it?</summary><div class="body prose">
+      <p>Armor does nothing against spells, and healing has a ceiling: mana. Damage that never stops, like Sapphiron's Frost Aura on all 40 players every 2 seconds, multiplies across the raid: 40 × 300 = 12,000 damage per second at zero resistance.<sup class="c"><a href="#s17">17</a></sup><span class="vm" data-vm="frostaura">V</span> At the cap it drops to under 4,000. Healers can sustain the second figure. They can't sustain the first.</p>
+      <p>Spike damage is the other reason. A tank already taking melee hits from Ragnaros takes a 2,160–2,640 fire hit on every one of his swings.<span class="vm" data-vm="elemfire">V</span> Resistance lowers the average, and it makes the worst hits rarer.</p>
+      <p><b>Why "about 69%" and not 75%?</b> The formula caps at 75%, but VMaNGOS never lets a hit be 100% resisted. That share is folded into the 75% slice, so the average tops out at 68.75%. VMaNGOS's code comment cites old Elitist Jerks testing for this.<span class="vm" data-vm="cap">V</span></p>
+    </div></details>
   </div>
 </section>
 
-<!-- ============ TWO ROLLS ============ -->
-<section id="rolls">
-  <div class="head">
-    <p class="eyebrow">Chapter 1 · The pipeline</p>
-    <h2>What happens between the cast bar and the number</h2>
-    <p>Scroll through the steps. The diagram highlights the branch each step describes.</p>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>Every spell rolls two dice. The first decides whether it hits at all. The second decides how much of it your resistance blocks. Spells that apply an effect, like a fear, either work or don't. Damage spells can get partly blocked.</p>
-  <div class="scrolly">
-    <div class="stage"><svg id="pipe" viewBox="0 0 560 520" role="img" aria-label="Flowchart: cast, hit roll, binary or damage spell, resistance roll, outcome"></svg></div>
-    <div class="steps">
-      <div class="step on" data-step="0"><h3>The cast lands on a target</h3><p>Everything below happens server-side in one instant. Two numbers decide the result: the caster's <strong>level</strong> and the target's <strong>resistance</strong> in that school. Holy and physical damage skip this whole process. Only Fire, Frost, Nature, Shadow and Arcane have a resistance stat.<sup class="c"><a href="#s2">2</a></sup></p></div>
-      <div class="step" data-step="1"><h3>Roll one: did it hit?</h3><p>The spell rolls against a miss chance that depends on the level gap. A miss shows in the log as <em>Resist</em>, but it has nothing to do with resistance. Spell hit gear lowers this roll and only this roll.<sup class="c"><a href="#s1">1</a></sup><sup class="c"><a href="#s3">3</a></sup></p></div>
-      <div class="step" data-step="2"><h3>Is it a binary spell?</h3><p>A spell whose payload is an effect, such as a slow, root, fear or debuff, has to land in full or not at all. The wiki calls these <em>binary</em>. Pure damage spells can be partly resisted.<sup class="c"><a href="#s1">1</a></sup></p></div>
-      <div class="step" data-step="3"><h3>Binary: all or nothing</h3><p>Resistance becomes a chance to <em>fully</em> resist, assumed to equal the average resistance percentage. 150 resistance against a level-60 caster gives a 37.5% chance that the fear never lands.<sup class="c"><a href="#s1">1</a></sup></p></div>
-      <div class="step" data-step="4"><h3>Damage: a partial resist</h3><p>Damage spells roll a resisted slice instead: 0%, 25%, 50%, 75% or 100% in the vanilla and TBC model.<sup class="c"><a href="#s1">1</a></sup> The slices are weighted so the long-run average equals the average resistance. That average is what wipes or saves a raid.</p></div>
+<!-- ============ ARENA ============ -->
+<section id="arena" data-ch>
+  <div class="wide">
+    <div class="chap rv"><span class="num">II</span><p class="eyebrow">Interactive · see it for yourself</p><h2>Survive it</h2><p class="sub">Pick a fight, set your resistance and how much healing you get, then pull. Every hit rolls a partial resist from VMaNGOS's table. The fight runs at 3× speed.</p></div>
+    <div class="arena">
+      <div class="stagebox" id="stage">
+        <div class="bg" id="stageBg"></div>
+        <div class="top" role="group" aria-label="Encounter">
+          <button class="enc" type="button" data-enc="rag" aria-pressed="true"><img src="img/icons/spell_fire_lavaspawn.png" alt="">Ragnaros · tank</button>
+          <button class="enc" type="button" data-enc="huh" aria-pressed="false"><img src="img/icons/spell_nature_corrosivebreath.png" alt="">Huhuran · soaker</button>
+          <button class="enc" type="button" data-enc="sap" aria-pressed="false"><img src="img/icons/inv_misc_head_dragon_blue.png" alt="">Sapphiron · raider</button>
+        </div>
+        <div class="field" id="field">
+          <div class="unit" id="unit"><div class="name" id="uName">Main tank</div><div class="hp"><i id="hpBar"></i><b id="hpTxt"></b></div><div class="mono" id="uClock" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)">0:00</div></div>
+          <div class="verdict" id="verdict"><div><b id="vTitle"></b><span id="vText" class="mono" style="font-size:.9rem"></span></div></div>
+        </div>
+        <div class="bottom">
+          <div class="ctrl"><label for="aRes"><span>Your <span id="aSchool">fire</span> resistance</span><output id="aResO">0</output></label><input id="aRes" type="range" min="0" max="315" step="5" value="0"></div>
+          <div class="ctrl"><label for="aHeal"><span>Healing you receive per second</span><output id="aHealO">900</output></label><input id="aHeal" type="range" min="0" max="1500" step="25" value="900" style="--tc:var(--good)"></div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap"><button class="btn hot" type="button" id="aPull">Pull</button><button class="btn" type="button" id="aCap">Set 315 and pull</button></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="readout" id="aRead"></div>
+        <svg class="chart" id="aChart" viewBox="0 0 520 250" role="img" aria-label="Seconds you survive against resistance"></svg>
+        <p class="mono" id="aSrc" style="font-size:.8rem;color:var(--dim)"></p>
+        <details class="deep"><summary><span class="lvl">Go deeper</span>What this demo models, and what it leaves out</summary><div class="body prose">
+          <p>It models the magic damage only, using VMaNGOS's ability values and timers, its partial-resist table, and its rule that most damage-over-time ticks resist only a tenth as often.<span class="vm" data-vm="dot">V</span> It leaves out the boss's physical melee, armor, dodges and parries, absorbs and healer mana. The healing slider is your choice, not a measured figure.</p>
+          <p>The line on the chart is how long you live at each resistance. It bends sharply upward once the damage left after resistance drops below your healing. On farm, healers bring more healing per second, so the bend arrives at lower resistance. That's the whole progression-versus-farm story in one picture.</p>
+        </div></details>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ HIT ============ -->
-<section id="hit">
-  <div class="head">
-    <p class="eyebrow">Chapter 2 · Roll one</p>
-    <h2>The hit roll, and why bosses "resist" so much</h2>
-    <p>A raid boss counts as three levels above you. At +3 the miss chance jumps from 6% to 17%. That jump is where most casters' "resists" in Classic come from.</p>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>Against a raid boss, about 1 in 6 of your spells misses outright, and the game calls that a "resist". Gear with "+hit" fixes it, but only up to +16%. Past that, 1 spell in 100 still misses.</p>
-  <figure>
-    <svg class="chart" id="hitChart" viewBox="0 0 680 300" role="img" aria-label="Bar chart of spell miss chance by level difference"></svg>
-    <div class="ctrls">
-      <div class="ctrl"><label for="hitSlider">Spell hit from gear and talents</label><input id="hitSlider" type="range" min="0" max="20" step="1" value="0"><output id="hitOut">+0%</output></div>
+<!-- ============ HOW ============ -->
+<section id="how" data-ch>
+  <div class="wide">
+    <div class="chap rv"><span class="num">III</span><p class="eyebrow">The mechanics</p><h2>How resistance actually works</h2></div>
+    <div class="tldr rv"><span class="tag">10-second version</span><p>Every spell rolls twice. <b>Roll one</b>: did it hit? That depends on the level gap and spell hit. <b>Roll two</b>: how much does resistance block? Effects like fears and knockbacks either land or don't. Damage gets shaved by <b>0, 25, 50 or 75%</b>, averaging out to your resistance percentage.</p></div>
+    <div class="pipe-wrap">
+      <div class="pipe-stage"><svg id="pipe" viewBox="0 0 560 520" role="img" aria-label="Flowchart: cast, hit roll, binary or damage, resistance roll, outcome"></svg></div>
+      <div class="pipe-steps">
+        <div class="pstep on" data-step="0"><h3>A spell is cast</h3><p>Two numbers matter: the caster's <b>level</b> and the target's <b>resistance</b> in that school. Only fire, frost, nature, shadow and arcane can be resisted.<sup class="c"><a href="#s2">2</a></sup></p></div>
+        <div class="pstep" data-step="1"><h3>Roll one: hit or miss</h3><p>The miss chance depends on the level gap: 4% against your own level, 17% against a raid boss. The log calls a miss a "Resist", but resistance played no part in it. Spell hit gear lowers this roll only.<sup class="c"><a href="#s1">1</a></sup> <span class="vm" data-vm="miss">V</span></p></div>
+        <div class="pstep" data-step="2"><h3>Effect or damage?</h3><p>Spells that slow, stun, fear, root, silence or knock back are <em>binary</em>: all or nothing. Pure damage can be partly blocked.<sup class="c"><a href="#s1">1</a></sup> <span class="vm" data-vm="binary">V</span></p></div>
+        <div class="pstep" data-step="3"><h3>Binary: a coin flip</h3><p>Your resistance percentage becomes the chance the effect fails outright. That's why Ragnaros tanks stack fire resistance: Wrath of Ragnaros is a knockback, so at 315 it fails about 3 times in 4.<span class="vm" data-vm="wrath">V</span></p></div>
+        <div class="pstep" data-step="4"><h3>Damage: a slice</h3><p>The hit loses 0%, 25%, 50% or 75%. Over many hits it averages to your resistance percentage. That average is what keeps you alive.<sup class="c"><a href="#s1">1</a></sup> <span class="vm" data-vm="partial">V</span></p></div>
+      </div>
     </div>
-    <figcaption>PvE miss chance before Cataclysm: 4% / 5% / 6% / 17% / 28% at +0 to +4 levels, then +11% per level.<sup class="c"><a href="#s1">1</a></sup> Spell hit could not push the chance to land above 99% before patch 3.0.2.<sup class="c"><a href="#s3">3</a></sup> So 16% hit was the useful maximum against a level-63 boss. The solid bars are the base miss. The outlines show what is left after your hit.</figcaption>
-  </figure>
-  <details class="tech"><summary>Technical detail: conflicting hit tables</summary><div class="body">
-    <p>The wiki's spell hit page lists a 94% chance to hit an even-level target and 85% at +3.<sup class="c"><a href="#s3">3</a></sup> Those figures come from the Wrath-era rating system. The pre-Cataclysm table on the resistance page (96% and 83%) is the one Classic players test against.<sup class="c"><a href="#s1">1</a></sup> The 1% that always misses comes from the 99% hit cap, which patch 3.0.2 raised to 100%.<sup class="c"><a href="#s3">3</a></sup></p>
-  </div></details>
-</section>
 
-<!-- ============ RESISTANCE ============ -->
-<section id="resist">
-  <div class="head">
-    <p class="eyebrow">Chapter 3 · Roll two</p>
-    <h2>Resistance turns into a percentage, and the cap moves with level</h2>
-    <p>The formula uses the caster's level. The target's level does not appear in it. That is why the magic number is 315 for spells a raid boss casts on you, and 300 for spells you cast on a level-60 player.</p>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>Resistance points turn into a percentage of damage blocked. Against a raid boss, about every 4 points block 1% more, up to 315 points, which block 75% on average. 315 is a hard ceiling. Move the slider to see where you land.</p>
-  <figure>
-    <svg class="chart" id="arChart" viewBox="0 0 680 320" role="img" aria-label="Line chart of average resistance against resistance for caster level 60 and 63"></svg>
-    <div class="ctrls">
-      <div class="ctrl"><label for="arSlider">Your resistance</label><input id="arSlider" type="range" min="0" max="400" step="5" value="215"><output id="arOut">215</output></div>
-    </div>
-    <figcaption>Average resistance against resistance, for a level-60 caster (another player) and a level-63 caster (a raid boss). The curve rises in a straight line and stops flat at 75%. Past the corner, extra resistance does nothing.<sup class="c"><a href="#s1">1</a></sup></figcaption>
-  </figure>
-  <details class="tech"><summary>Technical detail: the formula, penetration and hidden boss resistance</summary><div class="body">
-  <div class="eq"><span class="k">average resistance</span> = (R ÷ (L<sub>caster</sub> × 5)) × 0.75      cap 75%
-<span class="k">effective R</span>        = R<sub>base</sub> + max((L<sub>target</sub> − L<sub>caster</sub>) × 5, 0) − min(P, R<sub>base</sub>)</div>
-  <p>Casters below level 20 are treated as level 20.<sup class="c"><a href="#s1">1</a></sup> P is spell penetration, and it can only cancel the target's base resistance. It cannot touch the level term. Since patch 1.9.0 it cannot push resistance below zero.<sup class="c"><a href="#s1">1</a></sup></p>
-  <div class="callout"><strong>The hidden level resistance.</strong> When the target is higher level than the caster, it gains resistance to every school. The formula on the wiki gives 5 per level, which is 15 for a level-63 boss. A note on the same page says "8 resist (believed)" per level, which is 24.<sup class="c"><a href="#s1">1</a></sup> Nobody outside Blizzard has the exact number. A player in the 2020 Classic forum thread on AQ resistances admitted there has never been a way to mine boss resistances.<sup class="c"><a href="#s5">5</a></sup> The simulator lets you pick either value.</div>
-  </div></details>
-</section>
-
-<!-- ============ PARTIAL ============ -->
-<section id="partial">
-  <div class="head">
-    <p class="eyebrow">Chapter 4 · Partial resists</p>
-    <h2>The slices change from cast to cast. The average does not.</h2>
-    <p>The documented part is that damage spells resist in fixed slices and that the slices average out to the average resistance.<sup class="c"><a href="#s1">1</a></sup> The exact weight of each slice in 1.12 has never been published. Below are two models that both meet the documented rule. Switch between them and watch the average stay where it is.</p>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>A damage spell doesn't get blocked by the same amount every time. Sometimes it's 0%, sometimes a quarter, half, three quarters, or all of it. Over many hits it averages out to your resistance percentage. That average is what keeps you alive.</p>
-  <figure>
-    <svg class="chart" id="partChart" viewBox="0 0 680 300" role="img" aria-label="Bar chart of partial resist slice probabilities"></svg>
-    <div class="ctrls">
-      <div class="ctrl"><label for="partSlider">Average resistance</label><input id="partSlider" type="range" min="0" max="75" step="1" value="40"><output id="partOut">40%</output></div>
-      <div class="ctrl"><label>Slice model</label><div class="seg" role="group" aria-label="Slice model"><button type="button" id="mA" aria-pressed="true">25% slices (vanilla/TBC)</button><button type="button" id="mB" aria-pressed="false">10% slices (wiki formula)</button></div></div>
-    </div>
-    <figcaption id="partCap">Model A splits the chance between the two nearest 25% slices, the tightest spread that keeps the average. Model B uses the wiki's per-slice formula P(x) = 50% − 250% × |x − AR|, renormalised at the edges.<sup class="c"><a href="#s1">1</a></sup></figcaption>
-  </figure>
-  <details class="tech"><summary>Technical detail: slice models and damage over time</summary><div class="body"><p>Model A and Model B give different spreads at the same average. Model A gives the tightest spread possible. Model B is how the wiki describes later expansions. Neither has been confirmed for 1.12.<sup class="c"><a href="#s1">1</a></sup></p><p><strong>DoTs:</strong> the wiki says DoTs roll partial resists on every tick, but it says so in a Wrath-era paragraph.<sup class="c"><a href="#s1">1</a></sup> Classic players logged ticks that all reused the first tick's roll and filed it as a bug in April 2020. Others said that was how vanilla always worked. No Blizzard employee answered.<sup class="c"><a href="#s6">6</a></sup> Treat it as unsettled.</p></div></details>
-</section>
-
-<!-- ============ BINARY ============ -->
-<section id="binary">
-  <div class="head">
-    <p class="eyebrow">Chapter 5 · Binary spells</p>
-    <h2>When the effect is the point, resistance is all or nothing</h2>
-    <p>The hidden level resistance does not apply to binary spells at all.<sup class="c"><a href="#s2">2</a></sup> Your gear resistance still does, and so does the level-based miss chance.</p>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>A spell that does a <em>thing</em>, like a fear, stun or slow, can't half-happen. With 50% resistance, it fails completely half the time. A damage spell loses about half its damage instead. Either way you lose the same amount on average. Some boss attacks are marked unresistable, and no resistance blocks those.</p>
-  <div class="two">
-    <figure style="margin:0">
-      <svg class="chart" id="binChart" viewBox="0 0 520 300" role="img" aria-label="Expected outcome of 100 casts, binary vs damage spell, at a chosen resistance"></svg>
-      <figcaption>100 casts by a level-63 boss on you at <span id="binR">150</span> resistance. Binary spells land or vanish. Damage spells almost always connect but lose part of their damage. Both lose the same share on average.</figcaption>
+    <h3 class="rv" style="font-size:1.6rem;margin-top:3rem">Roll one: why bosses "resist" your spells</h3>
+    <div class="tldr rv" style="margin-top:1rem"><span class="tag">Quick</span><p>A boss is <b>3 levels above you</b>, so <b>17%</b> of your spells miss. Gear with +hit fixes that, but only <b>up to +16%</b>. After that, 1 in 100 still misses.</p></div>
+    <figure class="rv">
+      <svg class="chart" id="hitChart" viewBox="0 0 680 290" role="img" aria-label="Spell miss chance by level difference"></svg>
+      <div class="ctrls"><div class="ctrl"><label for="hitSlider"><span>Your spell hit</span><output id="hitOut">+0%</output></label><input id="hitSlider" type="range" min="0" max="20" step="1" value="0" style="--tc:var(--arcane)"></div></div>
+      <figcaption>Creature miss table: 4 / 5 / 6 / 17 / 28% at +0 to +4 levels, then +11% per level (+7% against players).<sup class="c"><a href="#s1">1</a></sup> <span class="vm" data-vm="miss">V</span> The 1% floor is the 99% hit cap.<sup class="c"><a href="#s3">3</a></sup></figcaption>
     </figure>
-    <div class="prose" style="margin:0">
-      <h3>Binary (full resist or full effect)</h3>
-      <p>Frost Nova and Vampiric Embrace are the wiki's examples.<sup class="c"><a href="#s1">1</a></sup> Players report that frost spells with a snare cannot be partly resisted.<sup class="c"><a href="#s4">4</a></sup> Chromaggus's Time Lapse stun is binary, and arcane resistance can resist it.<sup class="c"><a href="#s12">12</a></sup></p>
-      <h3>Damage (partial slices)</h3>
-      <p>Fireball and Shadow Bolt.<sup class="c"><a href="#s2">2</a></sup> On the boss side: Ragnaros's lava, Sapphiron's Frost Aura and Huhuran's Poison Bolt are all resistible damage.<sup class="c"><a href="#s9">9</a></sup><sup class="c"><a href="#s17">17</a></sup><sup class="c"><a href="#s15">15</a></sup></p>
-      <h3>Unresistable</h3>
-      <p>Many raid abilities are flagged so they cannot be resisted at all. Examples are Sapphiron's Frost Breath and Chill, Kel'Thuzad's single Frostbolt, and Loatheb's Inevitable Doom.<sup class="c"><a href="#s17">17</a></sup><sup class="c"><a href="#s18">18</a></sup><sup class="c"><a href="#s19">19</a></sup> No amount of resistance gear helps against them.</p>
+
+    <h3 class="rv" style="font-size:1.6rem;margin-top:2.5rem">Roll two: points become a percentage</h3>
+    <div class="tldr rv" style="margin-top:1rem"><span class="tag">Quick</span><p>Against a raid boss, about <b>every 4 points block 1% more</b>, up to <b>315 points</b>. Past 315 nothing changes. Against another level-60 player, the cap is 300.</p></div>
+    <figure class="rv">
+      <svg class="chart" id="arChart" viewBox="0 0 680 310" role="img" aria-label="Average resistance against resistance"></svg>
+      <div class="ctrls"><div class="ctrl"><label for="arSlider"><span>Your resistance</span><output id="arOut">215</output></label><input id="arSlider" type="range" min="0" max="400" step="5" value="215"></div></div>
+      <figcaption>The solid lines are the formula: a straight rise, flat at 75%. The dashed line is what VMaNGOS actually delivers once the 100% slice is folded into 75%: it tops out at 68.75%.<sup class="c"><a href="#s1">1</a></sup> <span class="vm" data-vm="cap">V</span></figcaption>
+    </figure>
+    <details class="deep rv"><summary><span class="lvl">Technical</span>The formula, spell penetration and hidden boss resistance</summary><div class="body prose">
+      <div class="eq"><span class="k">average resist</span> = min(75%, R × 0.15 ÷ L<sub>caster</sub>)        <span style="color:var(--dim)">= 0.75 × R ÷ (5 × L)</span>
+<span class="k">R (vs a creature)</span> = max(0, R<sub>base</sub> − P) + ⌊8 × ΔL × L<sub>caster</sub> ÷ 63⌋   <span style="color:var(--dim)">VMaNGOS</span></div>
+      <p><b>Spell penetration</b> (P) only cancels the target's base resistance. Since patch 1.9.0 it can't push resistance below zero.<sup class="c"><a href="#s1">1</a></sup> <span class="vm" data-vm="pen">V</span></p>
+      <p><b>Hidden boss resistance.</b> When a player casts on a higher-level creature, the creature gets bonus resistance to every school. Sources disagree on the size:</p>
+      <ul><li>The wiki's formula gives 5 per level, which is 15 against a raid boss.<sup class="c"><a href="#s1">1</a></sup></li><li>A note on the same wiki page says "8 per level (believed)", which is 24.</li><li>VMaNGOS uses 8 × levels × caster level ÷ 63, which is 22 for a level-60 player against a boss, about 5.5% average resistance. Its code cites no source for this.<span class="vm" data-vm="level">V</span></li></ul>
+      <p>All the sources agree that binary spells ignore this bonus and that penetration can't remove it. The wiki also mentions a level-20 minimum. VMaNGOS applies that minimum only to <em>negative</em> resistance, not to the normal formula.</p>
+    </div></details>
+
+    <h3 class="rv" style="font-size:1.6rem;margin-top:2.5rem">Partial resists: the slices</h3>
+    <div class="tldr rv" style="margin-top:1rem"><span class="tag">Quick</span><p>A hit doesn't lose the same amount every time. It loses 0, 25, 50 or 75%, chosen at random, and the <b>average matches your resistance percentage</b>.</p></div>
+    <figure class="rv">
+      <svg class="chart" id="partChart" viewBox="0 0 680 290" role="img" aria-label="Partial resist slice probabilities"></svg>
+      <div class="ctrls">
+        <div class="ctrl"><label for="partSlider"><span>Average resistance</span><output id="partOut">40%</output></label><input id="partSlider" type="range" min="0" max="75" step="1" value="40"></div>
+        <div class="ctrl" style="flex:0 1 auto"><span class="lbl">Slice model</span><div class="seg" role="group" aria-label="Slice model"><button type="button" data-pm="V" aria-pressed="true">VMaNGOS table</button><button type="button" data-pm="A" aria-pressed="false">Nearest two</button><button type="button" data-pm="B" aria-pressed="false">Wiki 10%</button></div></div>
+      </div>
+      <figcaption id="partCap"></figcaption>
+    </figure>
+    <details class="deep rv"><summary><span class="lvl">Technical</span>Where the slice table comes from, and damage over time</summary><div class="body prose">
+      <p>VMaNGOS's table has 31 rows, one for every 10 resistance from 0 to 300 at level 60. The code comment says it was copied from a forum image of a Blizzard table. A few rows don't add up to 100%, which points to copying mistakes. The code uses a straight-line blend between rows and folds the 100% slice into 75%.<span class="vm" data-vm="partial">V</span></p>
+      <p><b>Damage over time.</b> VMaNGOS rolls a partial resist on every tick, but at a tenth of the normal chance. That follows a Blizzard developer's post that DoTs "were 1/10th as likely to be resisted". The code calls the details "somewhat a guess". Four DoTs follow the normal rules because video evidence shows them resisting, among them Vaelastrasz's Flame Breath and Sapphiron's Frost Aura.<span class="vm" data-vm="dot">V</span> Classic players argued over the same thing in 2020.<sup class="c"><a href="#s6">6</a></sup></p>
+    </div></details>
+
+    <h3 class="rv" style="font-size:1.6rem;margin-top:2.5rem">Binary spells and unresistable attacks</h3>
+    <div class="two rv">
+      <figure style="margin:0"><svg class="chart" id="binChart" viewBox="0 0 520 290" role="img" aria-label="100 casts, binary vs damage"></svg><figcaption>100 boss casts on you at <span id="binR">215</span> resistance (uses the slider above). Both types lose about the same share on average.</figcaption></figure>
+      <div class="prose">
+        <p><b style="color:var(--good)">Binary</b>: effects that land in full or not at all. In VMaNGOS that covers anything that slows, stuns, fears, roots, silences or knocks back. Examples are Wrath of Ragnaros, Kel'Thuzad's Frostbolt, Huhuran's Noxious Poison and Chromaggus's Time Lapse.<span class="vm" data-vm="binary">V</span></p>
+        <p><b style="color:var(--warn)">Partial</b>: pure damage, like Ragnaros's Elemental Fire, Sapphiron's Frost Aura and Huhuran's Poison Bolt.</p>
+        <p><b style="color:var(--bad)">Unresistable</b>: resistance never applies. Examples are Sapphiron's Frost Breath, Nefarian's Shadow Flame, Loatheb's Inevitable Doom and Kel'Thuzad's Frost Blast.<span class="vm" data-vm="unres">V</span> On the boss icons below, a <span style="color:var(--bad)">red dot</span> marks these.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ SIMULATOR ============ -->
-<section id="sim">
-  <div class="head">
-    <p class="eyebrow">Chapter 6 · Check it yourself</p>
-    <h2>The resist simulator</h2>
-    <p>The simulator casts the spell thousands of times using the documented rules and compares the result with the closed-form formula. If the formula is right, the bars and the dashed line meet.</p>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>Pick a situation, slide the resistance, and press <b>Cast them</b>. It fires thousands of pretend spells and counts what happened. The coloured bars are what happened. The dashed lines are what the formula predicted. If they match, the formula holds up.</p>
-  <div class="sim">
-    <div class="side">
-      <div class="ctrl"><label for="sDir">Scenario</label>
-        <select id="sDir">
-          <option value="boss">Raid boss (63) casts on you (60)</option>
-          <option value="you">You (60) cast on a raid boss (63)</option>
-          <option value="pvp">You (60) cast on a player (60)</option>
-        </select></div>
-      <div class="ctrl"><label for="sRes">Target resistance in that school</label><input id="sRes" type="range" min="0" max="400" step="5" value="215"><output id="sResO">215</output></div>
-      <div class="ctrl"><label for="sHit">Caster's spell hit</label><input id="sHit" type="range" min="0" max="20" step="1" value="0"><output id="sHitO">+0%</output></div>
-      <div class="ctrl"><label for="sPen">Caster's spell penetration</label><input id="sPen" type="range" min="0" max="100" step="5" value="0"><output id="sPenO">0</output></div>
-      <div class="ctrl"><label>Hidden level resistance per level</label><div class="seg" role="group" aria-label="Level resistance"><button type="button" data-lvl="5" aria-pressed="true">5 (formula)</button><button type="button" data-lvl="8" aria-pressed="false">8 (believed)</button><button type="button" data-lvl="0" aria-pressed="false">0</button></div></div>
-      <div class="ctrl"><label>Spell type</label><div class="seg" role="group" aria-label="Spell type"><button type="button" data-type="dmg" aria-pressed="true">Damage</button><button type="button" data-type="bin" aria-pressed="false">Binary</button></div></div>
-      <div class="ctrl"><label>Slice model</label><div class="seg" role="group" aria-label="Slice model"><button type="button" data-model="A" aria-pressed="true">25% slices</button><button type="button" data-model="B" aria-pressed="false">10% slices</button></div></div>
-      <div class="ctrl"><label for="sN">Casts</label><select id="sN"><option>1000</option><option selected>10000</option><option>100000</option></select></div>
-      <button class="primary" type="button" id="sRun">Cast them</button>
-    </div>
-    <div class="out">
-      <div class="stats" id="sStats"></div>
-      <svg class="chart" id="simHist" viewBox="0 0 680 280" role="img" aria-label="Histogram of simulated outcomes against theory"></svg>
-      <svg class="chart" id="simConv" viewBox="0 0 680 230" role="img" aria-label="Running average damage converging to theory"></svg>
-      <div><p class="eyebrow" style="margin-bottom:.5rem">Last 14 casts · base damage 1,000</p><div class="log" id="sLog"></div></div>
+<!-- ============ PHASE ============ -->
+<section id="phase" data-ch>
+  <div class="wide">
+    <div class="chap rv"><span class="num">IV</span><p class="eyebrow">Progression vs farm</p><h2>When the gear is needed, and when it stops being needed</h2></div>
+    <div class="tldr rv"><span class="tag">10-second version</span><p>During <b>progression</b> your raid has less healing and kills slowly, so fights last longer and every point of resistance matters. On <b>farm</b> the raid is geared, healers heal more, and bosses die before the damage piles up. Most resistance requirements fade. <b>Two never do</b>: Sapphiron's never-ending aura and Nefarian's cloak.</p></div>
+    <figure class="rv">
+      <svg class="chart" id="phaseChart" viewBox="0 0 760 520" role="img" aria-label="Heatmap of how much resistance each boss needs from first kill to farm"></svg>
+      <figcaption>Our read <span class="grade F">F</span> of how much resistance each boss needs as a raid progresses, built from the guides and tactics cited in the raid chapter below. Red means required, amber means some players or consumables, green means skip. Click a row to jump to that boss.</figcaption>
+    </figure>
+    <div class="two rv">
+      <div class="prose">
+        <h3 style="font-size:1.25rem">What lets a raid drop it</h3>
+        <p><b>The damage has a time limit.</b> Huhuran's deadly bolts start only when she berserks at 30%. Vaelastrasz is a 3-minute race. The more damage your raid does, the shorter that window, so the gear matters less.<sup class="c"><a href="#s15">15</a></sup><sup class="c"><a href="#s11">11</a></sup><sup class="c"><a href="#s20">20</a></sup></p>
+        <p><b>Healing outgrows the damage.</b> In the arena above, look at where the line bends upward. More healing per second moves the bend to lower resistance.</p>
+        <p><b>Only a few people take it.</b> Ragnaros's fire hits the tank, and Huhuran's bolts hit only the 15 closest players. Guilds shrink that group first.<sup class="c"><a href="#s7">7</a></sup><sup class="c"><a href="#s15">15</a></sup></p>
+      </div>
+      <div class="prose">
+        <h3 style="font-size:1.25rem">What never lets it go</h3>
+        <p><b>Damage that hits everyone for the whole fight.</b> Sapphiron's Frost Aura hits all 40 players every 2 seconds until he dies. Faster kills shorten it but never remove it. The wiki calls frost resistance "mandatory".<sup class="c"><a href="#s17">17</a></sup></p>
+        <p><b>An item gate.</b> Without the Onyxia Scale Cloak, Shadow Flame's damage-over-time kills. Gear can't replace the cloak.<sup class="c"><a href="#s13">13</a></sup><span class="vm" data-vm="cloak">V</span></p>
+        <p><b>A knockback you can't afford.</b> Ragnaros tanks keep fire resistance even on farm, because a resisted Wrath of Ragnaros means the tank isn't thrown back and keeps threat.<span class="vm" data-vm="wrath">V</span></p>
+      </div>
     </div>
   </div>
-  <div class="prose" style="margin-top:2rem"><p>What the simulator settles: <em>if</em> the documented rules are right, then 315 resistance against a level-63 caster gives exactly 75% average mitigation, extra resistance adds nothing, and hit rating has no effect on partial resists. What it cannot settle: the hidden boss resistance per level, and the exact slice weights. Those are inputs because nobody has proven them.</p></div>
 </section>
 
 <!-- ============ RAIDS ============ -->
-<section id="raids">
-  <div class="head">
-    <p class="eyebrow">Chapter 7 · Raid by raid</p>
-    <h2>Where resistance mattered in Classic, and how much</h2>
-    <p>The "Who needs it" column gives the original tactics. The "How guilds skip it" column gives what modern Classic guilds actually do. A protection potion absorbs damage. It adds no resistance.</p>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>Red <span class="pill req">labels</span> mean you need it. Amber means a few people need it, or a potion covers it. Green means you can skip it. In practice only two fights force it on the whole raid: <b>Sapphiron</b> (frost resistance) and <b>Nefarian</b> (everyone in an Onyxia Scale Cloak). Ragnaros needs it on the tanks. On a phone, scroll the table sideways.</p>
-  <div class="tbl-wrap">
-  <table>
-    <thead><tr><th>Boss</th><th>What hurts</th><th>Who needs it</th><th>How guilds skip or shrink it</th><th>Need</th></tr></thead>
-    <tbody>
-      <tr class="raid"><td colspan="5"><h3 class="fire">Molten Core</h3><span>40 · fire</span></td></tr>
-      <tr><td class="boss">Ragnaros</td><td>Wrath of Ragnaros 1,000 fire + knockback · Magma Blast 6,000 · Elemental Fire 2,160–2,640 + 600/s DoT<sup class="c"><a href="#s9">9</a></sup></td><td>MT at least 300, <b>315 buffed</b>. Melee at least 200, everyone else 100 unbuffed. "No member should exceed 315."<sup class="c"><a href="#s9">9</a></sup></td><td>Modern guides say only tanks need FR.<sup class="c"><a href="#s7">7</a></sup><sup class="c"><a href="#s8">8</a></sup> 1–3 Fire Protection Potions each. A mind-controlled Scarshield Spellbinder gives +81 FR for 60 min.<sup class="c"><a href="#s9">9</a></sup></td><td><span class="pill req">tanks</span></td></tr>
-      <tr><td class="boss">Baron Geddon</td><td>Inferno · Living Bomb 3,200 · Armageddon 8,000 fire<sup class="c"><a href="#s10">10</a></sup></td><td>The MT can stay in Inferno only with 315+ FR.<sup class="c"><a href="#s10">10</a></sup> A guide says 250+ FR resists Ignite Mana.<sup class="c"><a href="#s7">7</a></sup></td><td>Everyone, the MT included, runs out of Inferno.<sup class="c"><a href="#s10">10</a></sup></td><td><span class="pill none">skippable</span></td></tr>
-      <tr><td class="boss">Trash &amp; Golemagg</td><td>Ancient Core Hounds and Firewalkers apply fire-resist debuffs. Golemagg's MT needs "plenty of FR".<sup class="c"><a href="#s7">7</a></sup></td><td>Tanks</td><td>Outgear it. Most raiders keep their main stats.<sup class="c"><a href="#s7">7</a></sup></td><td><span class="pill none">skippable</span></td></tr>
-
-      <tr class="raid"><td colspan="5"><h3 class="fire">Onyxia's Lair</h3><span>40 · fire</span></td></tr>
-      <tr><td class="boss">Onyxia</td><td>Fire breath attacks</td><td>The common view is that players other than tanks need little FR beyond the Onyxia cloak and potions.<sup class="c"><a href="#s8">8</a></sup></td><td>Potions. Her Scale of Onyxia is crafted into the cloak needed for Nefarian.<sup class="c"><a href="#s14">14</a></sup></td><td><span class="pill none">skippable</span></td></tr>
-
-      <tr class="raid"><td colspan="5"><h3 class="shadow">Blackwing Lair</h3><span>40 · fire, shadow, mixed</span></td></tr>
-      <tr><td class="boss">Vaelastrasz</td><td>Fire Nova 555–645 (100 yd) · Flame Breath 3,500–4,500 + DoT<sup class="c"><a href="#s11">11</a></sup></td><td>MTs "max out" FR. Pure DPS ideally at least 180 FR.<sup class="c"><a href="#s11">11</a></sup></td><td>It's a 3-minute race. Spellbinder +81–83, Blazing Emblem (+50 on use), Juju Ember +15.<sup class="c"><a href="#s11">11</a></sup></td><td><span class="pill some">some</span></td></tr>
-      <tr><td class="boss">Chromaggus</td><td>Two of five breaths: Incinerate 3,675–4,275 fire, Corrosive Acid nature, Frost Burn ~1,400, Ignite Flesh, Time Lapse stun<sup class="c"><a href="#s12">12</a></sup></td><td>No numbers given. Time Lapse is binary, and arcane resistance resists it.<sup class="c"><a href="#s12">12</a></sup></td><td>Hide behind the pillars to break line of sight. Hourglass Sand for Bronze.<sup class="c"><a href="#s12">12</a></sup></td><td><span class="pill none">skippable</span></td></tr>
-      <tr><td class="boss">Nefarian</td><td>Shadow Flame 2,210 shadow cone + a fatal engulf DoT · P2 AoE ~1,000 shadow, "completely resistible"<sup class="c"><a href="#s13">13</a></sup></td><td><b>Onyxia Scale Cloak on everyone.</b> Without it only Ice Block or Divine Shield survives the Flame.<sup class="c"><a href="#s13">13</a></sup> The cloak gives +16 <em>fire</em> resistance, not shadow.<sup class="c"><a href="#s14">14</a></sup></td><td>Can't be skipped. The cloak is the gate, not resistance.</td><td><span class="pill req">cloak</span></td></tr>
-
-      <tr class="raid"><td colspan="5"><h3 class="nature">Temple of Ahn'Qiraj</h3><span>40 · nature</span></td></tr>
-      <tr><td class="boss">Princess Huhuran</td><td>Poison Bolt 2,000 on the 15 closest. At 30% she berserks and fires every 3 s. Noxious Poison 2,900 nature. Acid Spit is "not resistible".<sup class="c"><a href="#s15">15</a></sup></td><td>15 NR soaks. "No one else needs nature resistance." The MT shouldn't wear NR because the spit ignores it.<sup class="c"><a href="#s15">15</a></sup></td><td>Burst her down quickly. Wowhead reported in 2020 that many guilds planned this.<sup class="c"><a href="#s20">20</a></sup> Stoneform soaks.<sup class="c"><a href="#s15">15</a></sup></td><td><span class="pill some">15 soaks</span></td></tr>
-      <tr><td class="boss">Viscidus</td><td>Poison Volley ~1,500 nature (resistible) + an unresistable DoT · Toxin Clouds ~1,500 unresistable<sup class="c"><a href="#s16">16</a></sup></td><td>Everyone drinks an NR potion 2 min before the pull.<sup class="c"><a href="#s16">16</a></sup></td><td>Melee stay 100 yd away until he shatters. Frost damage freezes him, so frost matters more than NR.<sup class="c"><a href="#s16">16</a></sup></td><td><span class="pill some">potion</span></td></tr>
-
-      <tr class="raid"><td colspan="5"><h3 class="frost">Naxxramas</h3><span>40 · frost, shadow</span></td></tr>
-      <tr><td class="boss">Sapphiron</td><td>Frost Aura 600 frost every 2 s, "partially resisted" · Chill, Icebolt and Frost Breath are unresistable<sup class="c"><a href="#s17">17</a></sup></td><td>"Frost Resistance is mandatory". The raid averages about 150 FR unbuffed. Greater Frost Protection Potion and Juju Chill are required. Bring paladins or shamans for the FR buff.<sup class="c"><a href="#s17">17</a></sup></td><td>The wiki gives no skip. The aura never stops, so the potions don't replace the gear.</td><td><span class="pill req">whole raid</span></td></tr>
-      <tr><td class="boss">Kel'Thuzad</td><td>Frostbolt 9,000–11,000, not resistible (interrupt it) · Frostbolt Volley 2,750–3,500, fully resistible<sup class="c"><a href="#s18">18</a></sup></td><td>"Frost resist gear is not generally advisable."<sup class="c"><a href="#s18">18</a></sup></td><td>Bring DPS and mana regen instead.</td><td><span class="pill none">skip</span></td></tr>
-      <tr><td class="boss">Loatheb</td><td>Inevitable Doom 2,550 shadow, "cannot be resisted"<sup class="c"><a href="#s19">19</a></sup></td><td>Shadow resistance is useless here.</td><td>Greater Shadow Protection Potions absorb the damage. In vanilla they lasted 1 hour and could be pre-potted. Patch 2.1.0 cut that to 2 min.<sup class="c"><a href="#s19">19</a></sup><sup class="c"><a href="#s27">27</a></sup></td><td><span class="pill some">potions</span></td></tr>
-    </tbody>
-  </table>
+<section id="raids" data-ch style="padding-bottom:0">
+  <div class="wide">
+    <div class="chap rv"><span class="num">V</span><p class="eyebrow">Encounter by encounter</p><h2>The raids, boss by boss</h2></div>
+    <div class="tldr rv"><span class="tag">How to read this</span><p>Each boss has two labels: <b>Progression</b> (your first kills) and <b>Farm</b> (a geared raid). Hover or tap an ability icon for its numbers. Open "Full detail" for every source and every point where sources disagree.</p></div>
   </div>
 </section>
+<div id="raidList"></div>
 
-<!-- ============ STACK CALC ============ -->
-<section id="stack">
-  <div class="head">
-    <p class="eyebrow">Chapter 8 · Stack calculator</p>
-    <h2>How far your gear has to carry you</h2>
-    <p>Pick an encounter, set your gear resistance, and tick the buffs your raid brings. The calculator adds them up the way the game stacks them and turns the total into damage taken.</p>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>Your gear gives some resistance, and buffs from your raid add more. This adds it all up, tells you how far you are from 315, and shows how much less a boss's attack hits you for. Buffs that don't stack with each other only count once.</p>
-  <div class="sim">
-    <div class="side">
-      <div class="ctrl"><label for="kEnc">Encounter</label>
-        <select id="kEnc">
-          <option value="rag">Ragnaros · tanking (fire)</option>
-          <option value="vael">Vaelastrasz · Fire Nova (fire)</option>
-          <option value="huh">Huhuran · berserk soak (nature)</option>
-          <option value="sap">Sapphiron · Frost Aura (frost)</option>
-          <option value="nef">Nefarian · phase 2 AoE (shadow)</option>
-        </select></div>
-      <div class="ctrl"><label for="kGear">Resistance from gear and enchants</label><input id="kGear" type="range" min="0" max="350" step="5" value="120"><output id="kGearO">120</output></div>
-      <fieldset style="border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:.55rem" id="kBuffs"><legend class="eyebrow" style="margin-bottom:.4rem">Buffs</legend></fieldset>
-    </div>
-    <div class="out">
-      <div class="stats" id="kStats"></div>
-      <svg class="chart" id="kBar" viewBox="0 0 680 200" role="img" aria-label="Stacked bar of resistance sources against the 315 cap"></svg>
-      <p id="kNote" class="mono" style="font-size:.86rem;color:var(--muted)"></p>
+<!-- ============ STACK ============ -->
+<section id="stack" data-ch>
+  <div class="wide">
+    <div class="chap rv"><span class="num">VI</span><p class="eyebrow">Planner</p><h2>Stack calculator</h2><p class="sub">Your gear, plus what your raid brings. Buffs that don't stack only count once.</p></div>
+    <div class="tool">
+      <div class="side">
+        <div class="ctrl"><label for="kEnc"><span>Encounter</span></label><select id="kEnc"><option value="rag">Ragnaros · tanking (fire)</option><option value="vael">Vaelastrasz · Fire Nova (fire)</option><option value="huh">Huhuran · berserk soak (nature)</option><option value="sap">Sapphiron · Frost Aura (frost)</option></select></div>
+        <div class="ctrl"><label for="kGear"><span>Resistance from gear</span><output id="kGearO">120</output></label><input id="kGear" type="range" min="0" max="350" step="5" value="120"></div>
+        <div id="kBuffs" style="display:flex;flex-direction:column;gap:.45rem"></div>
+      </div>
+      <div class="out">
+        <div class="readout" id="kStats"></div>
+        <svg class="chart" id="kBar" viewBox="0 0 680 170" role="img" aria-label="Resistance sources against the 315 cap"></svg>
+        <p id="kNote" class="mono" style="font-size:.84rem;color:var(--muted)"></p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ============ SKIP ============ -->
-<section id="skip">
-  <div class="head">
-    <p class="eyebrow">Chapter 9 · When and how it gets skipped</p>
-    <h2>Five ways guilds stopped farming resistance gear</h2>
-  </div>
-  <p class="plain"><b class="tag">In plain words</b>Fewer people wear it, the boss dies faster, potions soak the damage, or the raid steps out of the way. When none of that works, you wear the gear.</p>
-  <div class="prose">
-    <p><strong>1. Shrink the number of people who need it.</strong> Ragnaros needs fire resistance only on whoever takes melee hits and Wrath knockbacks. Huhuran needs it only on the 15 closest players.<sup class="c"><a href="#s15">15</a></sup> Modern Classic guides tell everyone else to keep their normal gear.<sup class="c"><a href="#s7">7</a></sup><sup class="c"><a href="#s8">8</a></sup></p>
-    <p><strong>2. Kill it before the damage adds up.</strong> Resistance only cuts damage per second. When a fight is short, the total is small and healers can cover it. That is how guilds handled Huhuran's berserk phase in 2020.<sup class="c"><a href="#s20">20</a></sup> Vaelastrasz is a 3-minute fight by design.<sup class="c"><a href="#s11">11</a></sup></p>
-    <p><strong>3. Use absorbs instead of gear.</strong> A Greater Fire or Nature Protection Potion absorbs 1,950–3,250 damage, 2,600 by the tooltip.<sup class="c"><a href="#s27">27</a></sup><sup class="c"><a href="#s28">28</a></sup> Against Huhuran's 2,000-damage bolts, one potion takes about one bolt. Absorbs help in a burst and do little against a long fight.</p>
-    <p><strong>4. Move instead.</strong> Leave Geddon's Inferno, break line of sight on Chromaggus's breaths, and keep melee away from Viscidus.<sup class="c"><a href="#s10">10</a></sup><sup class="c"><a href="#s12">12</a></sup><sup class="c"><a href="#s16">16</a></sup></p>
-    <p><strong>5. Recognise when it can't be skipped.</strong> Sapphiron's Frost Aura never stops and is only partially resistible, so the wiki calls frost resistance mandatory.<sup class="c"><a href="#s17">17</a></sup> Nefarian's Shadow Flame needs the cloak.<sup class="c"><a href="#s13">13</a></sup> And when an ability is unresistable, as on Loatheb and much of Kel'Thuzad, resistance gear does nothing at all.<sup class="c"><a href="#s18">18</a></sup><sup class="c"><a href="#s19">19</a></sup></p>
+<!-- ============ SIM ============ -->
+<section id="sim" data-ch>
+  <div class="wide">
+    <div class="chap rv"><span class="num">VII</span><p class="eyebrow">For the sceptics</p><h2>The resist simulator</h2><p class="sub">Cast thousands of spells under the rules and compare the result with the formula. The coloured bars are what happened. The dashed lines are what was predicted.</p></div>
+    <div class="tool">
+      <div class="side">
+        <div class="ctrl"><label for="sDir"><span>Who casts on whom</span></label><select id="sDir"><option value="boss">Raid boss (63) → you (60)</option><option value="you">You (60) → raid boss (63)</option><option value="pvp">You (60) → player (60)</option></select></div>
+        <div class="ctrl"><label for="sRes"><span>Target resistance</span><output id="sResO">215</output></label><input id="sRes" type="range" min="0" max="400" step="5" value="215"></div>
+        <div class="ctrl"><label for="sHit"><span>Caster spell hit</span><output id="sHitO">+0%</output></label><input id="sHit" type="range" min="0" max="20" step="1" value="0" style="--tc:var(--arcane)"></div>
+        <div class="ctrl"><label for="sPen"><span>Caster spell penetration</span><output id="sPenO">0</output></label><input id="sPen" type="range" min="0" max="100" step="5" value="0" style="--tc:var(--shadow)"></div>
+        <div class="ctrl"><span class="lbl">Hidden boss resistance</span><div class="seg" role="group" aria-label="Level resistance"><button type="button" data-lvl="vm" aria-pressed="true">VMaNGOS (22)</button><button type="button" data-lvl="5" aria-pressed="false">Wiki (15)</button><button type="button" data-lvl="8" aria-pressed="false">24</button><button type="button" data-lvl="0" aria-pressed="false">none</button></div></div>
+        <div class="ctrl"><span class="lbl">Spell type</span><div class="seg" role="group" aria-label="Spell type"><button type="button" data-type="dmg" aria-pressed="true">Damage</button><button type="button" data-type="bin" aria-pressed="false">Binary</button></div></div>
+        <div class="ctrl"><span class="lbl">Slice model</span><div class="seg" role="group" aria-label="Slice model"><button type="button" data-model="V" aria-pressed="true">VMaNGOS</button><button type="button" data-model="A" aria-pressed="false">Nearest two</button><button type="button" data-model="B" aria-pressed="false">Wiki 10%</button></div></div>
+        <div class="ctrl"><label for="sN"><span>Casts</span></label><select id="sN"><option>1000</option><option selected>10000</option><option>100000</option></select></div>
+        <button class="btn hot" type="button" id="sRun">Cast them</button>
+      </div>
+      <div class="out">
+        <div class="readout" id="sStats"></div>
+        <svg class="chart" id="simHist" viewBox="0 0 680 270" role="img" aria-label="Simulated outcomes against theory"></svg>
+        <svg class="chart" id="simConv" viewBox="0 0 680 220" role="img" aria-label="Running average converging"></svg>
+        <div><p class="eyebrow" style="margin-bottom:.5rem">Last 14 casts · 1,000 base damage</p><div class="log" id="sLog"></div></div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ============ FOREVER ============ -->
-<section id="forever">
-  <div class="head">
-    <p class="eyebrow">Chapter 10 · WoW Forever</p>
-    <h2>What to expect from resistance in WoW Forever</h2>
-    <p>Forever launched on 4 November 2026. Its first raids open on 9 December.<sup class="c"><a href="#s29">29</a></sup><sup class="c"><a href="#s31">31</a></sup> No player has fought a level-60 Forever raid boss yet, so this chapter keeps three things apart: what Blizzard said, what guides report, and what we expect.</p>
+<section id="forever" data-ch class="bleed" style="padding-left:var(--gutter);padding-right:var(--gutter-r);background:linear-gradient(180deg,rgba(12,10,9,.5),var(--bg) 62%),url('img/onyxia-dragon.jpg') center top/cover no-repeat">
+  <div class="wide">
+    <div class="chap rv"><span class="num">VIII</span><p class="eyebrow">World of Warcraft: Forever</p><h2>What to expect in Forever</h2><p class="sub">Forever launched on 4 November 2026, and its first raids open on 9 December.<sup class="c"><a href="#s29">29</a></sup><sup class="c"><a href="#s31">31</a></sup> No one has fought a level-60 Forever raid boss yet.</p></div>
+    <div class="tldr rv"><span class="tag">10-second version</span><p><b>Don't farm resistance gear yet.</b> Guides say the first raids don't use resistance sets. For Onyxia progression, tanks should bring some fire resistance and everyone should bring fire protection potions. On farm, expect even that to go. If the old raids come back, their resistance checks could come back too.</p></div>
+    <div class="ledger rv">
+      <div class="b"><h3>Blizzard confirmed</h3><ul>
+        <li><span class="grade B">B</span>Barrow Deeps (10 players, 8 bosses), Hyjal Summit (20 players, 13 bosses), Onyxia's Lair (40 players, needs the Drakefire Amulet). All reset weekly.<sup class="c"><a href="#s29">29</a></sup></li>
+        <li><span class="grade B">B</span>The only resistance advice so far: "Players should build their fire resistance before entering" Onyxia's Lair.<sup class="c"><a href="#s29">29</a></sup></li>
+        <li><span class="grade B">B</span>The level cap stays at 60 indefinitely.<sup class="c"><a href="#s30">30</a></sup> Talents and itemization are being reworked.<sup class="c"><a href="#s31">31</a></sup><sup class="c"><a href="#s32">32</a></sup></li>
+        <li><span class="grade B">B</span>Nothing yet on Molten Core, AQ, Naxxramas, raid tuning or resistance gear.</li>
+      </ul></div>
+      <div class="g"><h3>Guides report</h3><ul>
+        <li><span class="grade G">G</span>Resistance sets are "not part of the opening raid tier". ConquestCapped attributes this to Blizzard but doesn't link a statement.<sup class="c"><a href="#s33">33</a></sup></li>
+        <li><span class="grade G">G</span>Bosses count as 3 levels above you, and 315 resistance still gives 75%.<sup class="c"><a href="#s34">34</a></sup><sup class="c"><a href="#s35">35</a></sup></li>
+        <li><span class="grade G">G</span>Spell miss against a boss is 16% by one guide and 17% by another.<sup class="c"><a href="#s35">35</a></sup><sup class="c"><a href="#s34">34</a></sup> Hit is now a single stat.<sup class="c"><a href="#s33">33</a></sup></li>
+        <li><span class="grade G">G</span>Penetration can push a target into negative resistance.<sup class="c"><a href="#s35">35</a></sup></li>
+        <li><span class="grade G">G</span>Resistance auras and totems reach the whole raid. Curse of the Elements lowers resistances by 75.<sup class="c"><a href="#s36">36</a></sup></li>
+        <li><span class="grade G">G</span>A "revamped iconic raid" is listed for summer 2027.<sup class="c"><a href="#s37">37</a></sup><sup class="c"><a href="#s38">38</a></sup></li>
+      </ul></div>
+      <div class="f"><h3>Our read</h3><ul>
+        <li><span class="grade F">F</span><b>Onyxia</b>: on progression, tanks bring some fire resistance plus potions. On farm, probably nothing.</li>
+        <li><span class="grade F">F</span><b>Barrow Deeps and Hyjal</b>: with no resistance sets in the tier, expect them to be tuned so you can clear them without resistance gear.</li>
+        <li><span class="grade F">F</span><b>Raid-wide auras</b>: one +60 aura covers all 40 players, so the gear gap shrinks for everyone.</li>
+        <li><span class="grade F">F</span><b>If Molten Core returns</b>: Ragnaros tanks will probably want 315 again for progression, unless the revamp changes the fight.</li>
+      </ul></div>
+    </div>
+    <figure class="rv"><svg class="chart" id="foreverChart" viewBox="0 0 680 210" role="img" aria-label="Players covered by two paladin auras, Classic vs Forever"></svg><figcaption>Two paladins' resistance auras in a 40-player raid. In Classic they reach only each paladin's own group of five. In Forever they reach the whole raid.<sup class="c"><a href="#s36">36</a></sup></figcaption></figure>
   </div>
-  <p class="plain"><b class="tag">In plain words</b>Don't farm resistance gear for Forever yet. Guides say the first raids don't use it. For Onyxia, tanks should bring some fire resistance and everyone should bring fire protection potions. Big resistance checks like Ragnaros could come back if Blizzard brings back the old raids.</p>
-  <div class="ledger">
-    <div class="col b"><h3>Blizzard confirmed</h3><ul>
-      <li><span class="grade B">B</span>Opening raids: Barrow Deeps (10 players, 8 bosses), Hyjal Summit (20, 13 bosses) and Onyxia's Lair (40, needs the Drakefire Amulet). All reset weekly.<sup class="c"><a href="#s29">29</a></sup></li>
-      <li><span class="grade B">B</span>The only resistance statement so far is about Onyxia: "Players should build their fire resistance before entering."<sup class="c"><a href="#s29">29</a></sup></li>
-      <li><span class="grade B">B</span>The level cap stays at 60 indefinitely.<sup class="c"><a href="#s30">30</a></sup></li>
-      <li><span class="grade B">B</span>Talents, racials and itemization are being reworked.<sup class="c"><a href="#s31">31</a></sup><sup class="c"><a href="#s32">32</a></sup></li>
-      <li><span class="grade B">B</span>Nothing official yet on Molten Core, AQ or Naxxramas, raid tuning, or resistance gear.<sup class="c"><a href="#s29">29</a></sup></li>
-    </ul></div>
-    <div class="col g"><h3>Guides report</h3><ul>
-      <li><span class="grade G">G</span>Resistance sets "are not part of the opening raid tier". ConquestCapped attributes this to Blizzard but links no statement.<sup class="c"><a href="#s33">33</a></sup></li>
-      <li><span class="grade G">G</span>Raid bosses count as three levels above you, the same as Classic.<sup class="c"><a href="#s34">34</a></sup> 315 resistance gives 75%.<sup class="c"><a href="#s35">35</a></sup></li>
-      <li><span class="grade G">G</span>Spell miss against a raid boss is 16%<sup class="c"><a href="#s35">35</a></sup> or 17%<sup class="c"><a href="#s34">34</a></sup>. The guides disagree, and nobody yet knows whether the 1% floor remains.<sup class="c"><a href="#s35">35</a></sup> Spell, melee and ranged hit are now one stat.<sup class="c"><a href="#s33">33</a></sup></li>
-      <li><span class="grade G">G</span>Spell penetration can push a target into <em>negative</em> resistance, with a chance of 10/20/30% extra damage. Classic blocked this in patch 1.9.0.<sup class="c"><a href="#s35">35</a></sup><sup class="c"><a href="#s1">1</a></sup></li>
-      <li><span class="grade G">G</span>Resistance auras and totems now cover the whole raid, not just your party. Curse of the Elements lowers resistances by 75.<sup class="c"><a href="#s36">36</a></sup></li>
-      <li><span class="grade G">G</span>Other vanilla raids are said to be returning. A "revamped iconic raid" is listed for summer 2027, unnamed.<sup class="c"><a href="#s37">37</a></sup><sup class="c"><a href="#s38">38</a></sup></li>
-    </ul></div>
-    <div class="col f"><h3>Our forecast</h3><ul>
-      <li><span class="grade F">F</span><strong>Onyxia:</strong> expect light fire resistance on tanks plus potions, as in Classic. Blizzard's line suggests some preparation. With no resistance sets in this tier, it is unlikely to be a gear check.</li>
-      <li><span class="grade F">F</span><strong>Barrow Deeps and Hyjal:</strong> new fights with no resistance sets to support them. Expect them to be tuned so the raid can clear without resistance gear.</li>
-      <li><span class="grade F">F</span><strong>Raid-wide auras make the cap easier.</strong> One +60 aura on all 40 players closes most of the gap a gear set used to cover (see the chart).</li>
-      <li><span class="grade F">F</span><strong>Hit stays the caster stat to chase:</strong> plan for 16–17% against bosses until someone tests it at 60.</li>
-      <li><span class="grade F">F</span><strong>If Molten Core returns</strong> as the 2027 revamp, Ragnaros tanks will probably need 315 again. The rework could change that.</li>
-    </ul></div>
-  </div>
-  <figure>
-    <svg class="chart" id="foreverChart" viewBox="0 0 680 260" role="img" aria-label="Players covered by two paladin resistance auras in Classic and Forever"></svg>
-    <figcaption>Players covered by two paladins' resistance auras in a 40-player raid. In Classic, auras and totems reached only the caster's own five-player group. In Forever they reach the whole raid.<sup class="c"><a href="#s36">36</a></sup> The resistance a tank's gear has to supply to reach 315 drops by the aura's +60.<sup class="c"><a href="#s21">21</a></sup></figcaption>
-  </figure>
 </section>
 
 <!-- ============ MYTHS ============ -->
-<section id="myths">
-  <div class="head">
-    <p class="eyebrow">Chapter 11 · Misconceptions</p>
-    <h2>Things raiders say about resists, checked against the sources</h2>
+<section id="myths" data-ch>
+  <div class="wide">
+    <div class="chap rv"><span class="num">IX</span><p class="eyebrow">Click each one to check it</p><h2>Myth or fact?</h2><p class="sub">Things raiders say about resistance. Guess first, then check the verdict.</p></div>
+    <div class="myths" id="mythList"></div>
   </div>
-  <div class="myths">
-    <div class="myth"><div class="stamp f">False</div><div><h3>"Stack spell hit and you'll stop getting partial resists."</h3><p>Hit only affects the first roll, the level-based miss. A miss is a full resist from the hit table, and partial resists cannot happen in that roll. Only resistance, reduced by penetration, drives partials.<sup class="c"><a href="#s1">1</a></sup><sup class="c"><a href="#s5">5</a></sup></p></div></div>
-    <div class="myth"><div class="stamp u">Unproven</div><div><h3>"Bosses have 24 hidden resistance that only spell penetration removes."</h3><p>Both halves are wrong as stated. The documented formula gives 5 per level, which is 15. "8 per level" is marked "believed" on the same page. And penetration can only cancel <em>base</em> resistance. The level term "could not be overcome by spell penetration."<sup class="c"><a href="#s1">1</a></sup></p></div></div>
-    <div class="myth"><div class="stamp p">Partly</div><div><h3>"315 is the resistance cap."</h3><p>The cap is 75% average resistance, reached at 5 × the <em>caster's</em> level. That is 315 only against a level-63 caster, 300 against a level-60 player, and 150 against a level-30 mob.<sup class="c"><a href="#s1">1</a></sup> Ragnaros's tactics page says no one should go above 315 buffed.<sup class="c"><a href="#s9">9</a></sup></p></div></div>
-    <div class="myth"><div class="stamp p">Partly</div><div><h3>"Binary spells ignore resistance."</h3><p>Binary spells ignore the <em>hidden level resistance</em>.<sup class="c"><a href="#s2">2</a></sup> They still roll against your gear resistance, which becomes a chance to fully resist.<sup class="c"><a href="#s1">1</a></sup></p></div></div>
-    <div class="myth"><div class="stamp f">False</div><div><h3>"Protection potions give you resistance."</h3><p>They absorb a fixed amount: 1,950–3,250 for the Greater Fire potion. They add no resistance.<sup class="c"><a href="#s27">27</a></sup> That is why they help in bursts and fall off over a long fight.</p></div></div>
-    <div class="myth"><div class="stamp f">False</div><div><h3>"The Onyxia Scale Cloak is a shadow resistance cloak."</h3><p>It gives +16 <em>fire</em> resistance. What it does is protect you from being "fully engulfed" by Shadow Flame.<sup class="c"><a href="#s14">14</a></sup> Shadow resistance won't replace it.</p></div></div>
-    <div class="myth"><div class="stamp f">False</div><div><h3>"Frost resistance makes Sapphiron safe."</h3><p>Only Frost Aura is partially resistible. Chill, Icebolt and Frost Breath are unresistable.<sup class="c"><a href="#s17">17</a></sup> Frost resistance keeps the raid alive through the aura. Positioning handles the rest.</p></div></div>
-    <div class="myth"><div class="stamp f">False</div><div><h3>"Everyone needs fire resistance for Ragnaros."</h3><p>That was the 2005 plan: tanks 315, melee 200, everyone else 100.<sup class="c"><a href="#s9">9</a></sup> Modern Classic guides say tanks only, and warn against trading main stats for fire resistance.<sup class="c"><a href="#s7">7</a></sup><sup class="c"><a href="#s8">8</a></sup></p></div></div>
-    <div class="myth"><div class="stamp f">False</div><div><h3>"Stack a paladin aura, a priest buff and a resistance potion for the same school."</h3><p>Only one aura or raid-wide buff counts per school. The Shadow Resistance Aura does not stack with Prayer of Shadow Protection. Magic Resistance Potions don't stack with Fire Resistance auras or totems.<sup class="c"><a href="#s1">1</a></sup><sup class="c"><a href="#s22">22</a></sup><sup class="c"><a href="#s11">11</a></sup></p></div></div>
-    <div class="myth"><div class="stamp t">True</div><div><h3>"Resistance does nothing against physical or holy damage."</h3><p>There are five resistances: Fire, Frost, Nature, Shadow and Arcane. Players have no holy resistance stat. Armor handles physical damage.<sup class="c"><a href="#s2">2</a></sup></p></div></div>
-    <div class="myth"><div class="stamp u">Unproven</div><div><h3>"Each DoT tick rolls its own partial resist in Classic."</h3><p>The wiki says ticks roll separately, but that text describes a later era.<sup class="c"><a href="#s1">1</a></sup> Classic logs from 2020 showed every tick reusing the first tick's roll. Players argued both ways and Blizzard never answered in the thread.<sup class="c"><a href="#s6">6</a></sup></p></div></div>
-    <div class="myth"><div class="stamp u">Unproven</div><div><h3>"Blizzard confirmed Classic uses the exact 1.12 resist formula."</h3><p>None of the Classic threads we found have a staff reply on this. The formulas on this page were rebuilt by the community from combat logs and old posts. Blizzard never published them.<sup class="c"><a href="#s5">5</a></sup><sup class="c"><a href="#s4">4</a></sup></p></div></div>
+</section>
+
+<!-- ============ VMANGOS TEASER ============ -->
+<section id="vmangos-link" data-ch>
+  <div class="wide two" style="align-items:center">
+    <div class="prose rv">
+      <span class="chap" style="margin:0"><span class="num">X</span></span>
+      <p class="eyebrow">Fact-checking the fact-checker</p>
+      <h2 style="font-size:clamp(1.7rem,4vw,2.5rem)">Why the numbers were checked against VMaNGOS</h2>
+      <p>Blizzard never published the 1.12 resistance formulas. VMaNGOS is an open-source 1.12 server that has to implement them to run at all. That makes its code and database a second witness for every number here. Numbers that match carry a <span class="vm">V</span> badge. Click any badge to see the evidence.</p>
+      <p>Emulator code isn't proof either. A separate page covers what VMaNGOS gets right, where it guesses, and how far to trust it.</p>
+      <p><a class="btn hot" href="vmangos.html">Is VMaNGOS a credible source?</a></p>
+    </div>
+    <div class="rv" id="vmSummary"></div>
   </div>
 </section>
 
 <!-- ============ GLOSSARY ============ -->
 <section id="glossary">
-  <div class="head">
-    <p class="eyebrow">Glossary</p>
-    <h2>Words on this page, in plain English</h2>
+  <div class="wide">
+    <div class="chap rv"><p class="eyebrow">Glossary</p><h2>Words on this page</h2></div>
+    <dl class="gloss">
+      <dt>Resistance</dt><dd>A stat for one magic school. Higher means less damage from that school, on average.</dd>
+      <dt>Average resist</dt><dd>The share of magic damage resistance blocks over many hits. 75% at most on paper, about 69% in VMaNGOS.</dd>
+      <dt>315</dt><dd>The resistance that maxes out the formula against a raid boss: 5 points for each of the boss's 63 levels.</dd>
+      <dt>Progression</dt><dd>The weeks you're still learning a boss and your raid's gear is weaker. Kills are slow and tight.</dd>
+      <dt>Farm</dt><dd>Once a boss dies every week without trouble. The raid is geared and kills fast.</dd>
+      <dt>Raid boss level</dt><dd>Bosses count as level 63, shown as "??". That's 3 above a level-60 player.</dd>
+      <dt>Miss / "Resist"</dt><dd>The spell failed the first roll and did nothing. The Classic log calls this "Resist".</dd>
+      <dt>Partial resist</dt><dd>A damage spell that hit, with part of its damage blocked, for example "612 (408 resisted)".</dd>
+      <dt>Binary spell</dt><dd>A spell whose effect lands in full or not at all: fear, stun, slow, root, knockback.</dd>
+      <dt>Unresistable</dt><dd>An attack that resistance never reduces.</dd>
+      <dt>Spell hit</dt><dd>Lowers your miss chance. It does nothing about partial resists.</dd>
+      <dt>Spell penetration</dt><dd>Cancels some of the target's own resistance. In Classic it can't go below zero.</dd>
+      <dt>Aura / totem</dt><dd>A paladin or shaman buff that adds resistance. In Classic it reaches only the caster's own group of five.</dd>
+      <dt>Protection potion</dt><dd>Absorbs a fixed amount of damage. It adds no resistance.</dd>
+      <dt>Soak</dt><dd>A player who stands where the damage lands so others don't have to.</dd>
+      <dt>Emulator</dt><dd>A fan-made game server, like VMaNGOS, that recreates Blizzard's server from research.</dd>
+    </dl>
   </div>
-  <dl class="gloss">
-    <dt>Resistance</dt><dd>A stat for one magic school (fire, frost, nature, shadow or arcane). The higher it is, the less damage that school does to you on average.</dd>
-    <dt>Average resist</dt><dd>The share of magic damage your resistance blocks over many hits. It never goes above 75%.</dd>
-    <dt>315</dt><dd>The resistance that gets you to 75% against a raid boss. That's 5 points for each of the boss's 63 levels.</dd>
-    <dt>Raid boss level</dt><dd>Bosses count as level 63 (shown as "??"), three above a level-60 player. That's why your spells miss them more.</dd>
-    <dt>Miss / "Resist"</dt><dd>Your spell failed the first roll and did nothing. In Classic the combat log shows this as "Resist", even though resistance had nothing to do with it.</dd>
-    <dt>Partial resist</dt><dd>A damage spell that hit, with part of its damage blocked, for example "612 (408 resisted)".</dd>
-    <dt>Binary spell</dt><dd>A spell whose effect either happens fully or not at all, like a fear, stun, slow or root.</dd>
-    <dt>Unresistable</dt><dd>An attack the game ignores resistance for. Gear can't help against it.</dd>
-    <dt>Spell hit</dt><dd>A gear stat that lowers your chance to miss. It does nothing about partial resists.</dd>
-    <dt>Spell penetration</dt><dd>A gear stat that cancels some of the target's own resistance. In Classic it can't push resistance below zero. Guides say Forever allows it.</dd>
-    <dt>Aura / totem</dt><dd>A paladin or shaman buff that adds resistance to people near them. In Classic it covered only their own group of five. Guides say Forever extends it to the whole raid.</dd>
-    <dt>Protection potion</dt><dd>A potion that soaks up a fixed amount of one school's damage. It adds no resistance.</dd>
-    <dt>MT / tank</dt><dd>The player the boss is hitting. MT means main tank.</dd>
-    <dt>Soak</dt><dd>A player who stands where the damage lands so others don't have to.</dd>
-  </dl>
 </section>
 
 <!-- ============ SOURCES ============ -->
 <section id="sources">
-  <div class="head">
-    <p class="eyebrow">Sources</p>
-    <h2>Where every number comes from</h2>
-    <p>Read on 14 November 2026. Wiki pages change over time. Patch-note citations come from the patch history sections on those pages.</p>
+  <div class="wide">
+    <div class="chap"><p class="eyebrow">Sources</p><h2>Where every number comes from</h2><p class="sub">Read on 14 November 2026. VMaNGOS was checked from a local checkout of core commit 316e886 (26 October 2026) and its world database. File and line references are on the <a href="vmangos.html">VMaNGOS page</a>.</p></div>
+    <ol class="src">
+      <li id="s1"><a href="https://warcraft.wiki.gg/wiki/Resistance">Warcraft Wiki: Resistance</a>. Formulas, cap, level term, binary rule, slices, miss table, patch history. <span class="note">D</span></li>
+      <li id="s2"><a href="https://warcraft.wiki.gg/wiki/Resistances">Warcraft Wiki: Resistances</a>. <span class="note">D</span></li>
+      <li id="s3"><a href="https://warcraft.wiki.gg/wiki/Spell_hit">Warcraft Wiki: Spell hit</a>. <span class="note">D</span></li>
+      <li id="s4"><a href="https://warcraft.wiki.gg/wiki/Talk:Resistance">Warcraft Wiki: Talk:Resistance</a>. <span class="note">G</span></li>
+      <li id="s5"><a href="https://us.forums.blizzard.com/en/wow/t/did-ahnqiraj-bosses-have-75-resistance-in-vanilla/514529">Blizzard forums: Did AQ bosses have 75% resistance? (2020, players only)</a>. <span class="note">G</span></li>
+      <li id="s6"><a href="https://us.forums.blizzard.com/en/wow/t/partial-resist-checks-on-dots/484801">Blizzard forums: Partial resist checks on DoTs (2020)</a>. <span class="note">G</span></li>
+      <li id="s7"><a href="https://www.warcrafttavern.com/wow-classic/guides/mc">Warcraft Tavern: Molten Core guide</a>. <span class="note">G</span></li>
+      <li id="s8"><a href="https://www.warcrafttavern.com/wow-classic/guides/fire-resistance/">Warcraft Tavern: Fire Resistance guide</a>. <span class="note">G</span></li>
+      <li id="s9"><a href="https://warcraft.wiki.gg/wiki/Ragnaros_(tactics)">Warcraft Wiki: Ragnaros (tactics)</a>. <span class="note">D/G</span></li>
+      <li id="s10"><a href="https://warcraft.wiki.gg/wiki/Baron_Geddon">Warcraft Wiki: Baron Geddon</a>. <span class="note">D</span></li>
+      <li id="s11"><a href="https://warcraft.wiki.gg/wiki/Vaelastrasz_the_Corrupt">Warcraft Wiki: Vaelastrasz the Corrupt</a>. <span class="note">D/G</span></li>
+      <li id="s12"><a href="https://warcraft.wiki.gg/wiki/Chromaggus">Warcraft Wiki: Chromaggus</a>. <span class="note">D</span></li>
+      <li id="s13"><a href="https://warcraft.wiki.gg/wiki/Nefarian_(tactics)">Warcraft Wiki: Nefarian (tactics)</a>. <span class="note">D/G</span></li>
+      <li id="s14"><a href="https://warcraft.wiki.gg/wiki/Onyxia_Scale_Cloak">Warcraft Wiki: Onyxia Scale Cloak</a>. <span class="note">D</span></li>
+      <li id="s15"><a href="https://warcraft.wiki.gg/wiki/Princess_Huhuran">Warcraft Wiki: Princess Huhuran</a>. <span class="note">D/G</span></li>
+      <li id="s16"><a href="https://warcraft.wiki.gg/wiki/Viscidus">Warcraft Wiki: Viscidus</a>. <span class="note">D/G</span></li>
+      <li id="s17"><a href="https://warcraft.wiki.gg/wiki/Sapphiron_(Classic)">Warcraft Wiki: Sapphiron (Classic)</a>. <span class="note">D/G</span></li>
+      <li id="s18"><a href="https://warcraft.wiki.gg/wiki/Kel%27Thuzad_(Classic)">Warcraft Wiki: Kel'Thuzad (Classic)</a>. <span class="note">D/G</span></li>
+      <li id="s19"><a href="https://warcraft.wiki.gg/wiki/Loatheb_(Classic)">Warcraft Wiki: Loatheb (Classic)</a>. <span class="note">D</span></li>
+      <li id="s20"><a href="https://www.wowhead.com/news/how-important-is-nature-resistance-gear-in-classic-temple-of-ahnqiraj-317307">Wowhead: Nature resistance in Classic AQ40 (Aug 2020)</a>. <span class="note">G</span></li>
+      <li id="s21"><a href="https://warcraft.wiki.gg/wiki/Fire_Resistance_Aura">Warcraft Wiki: Fire Resistance Aura</a>. Also <a href="https://warcraft.wiki.gg/wiki/Frost_Resistance_Aura">Frost</a>. <span class="note">D</span></li>
+      <li id="s22"><a href="https://warcraft.wiki.gg/wiki/Shadow_Resistance_Aura">Warcraft Wiki: Shadow Resistance Aura</a>. <span class="note">D</span></li>
+      <li id="s23"><a href="https://warcraft.wiki.gg/wiki/Fire_Resistance_Totem">Warcraft Wiki: Fire Resistance Totem</a>. <span class="note">D</span></li>
+      <li id="s24"><a href="https://warcraft.wiki.gg/wiki/Nature_Resistance_Totem">Warcraft Wiki: Nature Resistance Totem</a>. <span class="note">D</span></li>
+      <li id="s25"><a href="https://warcraft.wiki.gg/wiki/Gift_of_the_Wild_(Classic)">Warcraft Wiki: Gift of the Wild (Classic)</a>. <span class="note">D</span></li>
+      <li id="s26"><a href="https://warcraft.wiki.gg/wiki/Prayer_of_Shadow_Protection">Warcraft Wiki: Prayer of Shadow Protection</a>. <span class="note">D</span></li>
+      <li id="s27"><a href="https://warcraft.wiki.gg/wiki/Greater_Fire_Protection_Potion">Warcraft Wiki: Greater Fire Protection Potion</a>. <span class="note">D</span></li>
+      <li id="s28"><a href="https://warcraft.wiki.gg/wiki/Greater_Nature_Protection_Potion">Warcraft Wiki: Greater Nature Protection Potion</a>. <span class="note">D</span></li>
+      <li id="s29"><a href="https://news.blizzard.com/en-gb/article/24303009/world-of-warcraft-forever-raid-overviewlocations-raid-sizes-and-attunement">Blizzard: WoW Forever raid overview</a>. <span class="note">B</span></li>
+      <li id="s30"><a href="https://www.warcrafttavern.com/forever/guides/overview/">Warcraft Tavern: WoW Forever overview</a>. <span class="note">B via G</span></li>
+      <li id="s31"><a href="https://warcraft.wiki.gg/wiki/World_of_Warcraft:_Forever">Warcraft Wiki: World of Warcraft: Forever</a>. <span class="note">B via D</span></li>
+      <li id="s32"><a href="https://www.dlcompare.com/gaming-news/wow-forever-could-be-the-classic-fans-have-wanted-83833">DLCompare: WoW Forever overview</a>. <span class="note">B via G</span></li>
+      <li id="s33"><a href="https://conquestcapped.com/guides/wow-forever/wow-forever-gearing-progression/">ConquestCapped: Forever gearing</a>. <span class="note">G</span></li>
+      <li id="s34"><a href="https://conquestcapped.com/guides/wow-forever/wow-forever-hit-cap/">ConquestCapped: Forever hit cap</a>. <span class="note">G</span></li>
+      <li id="s35"><a href="https://www.warcrafttavern.com/forever/guides/stats/">Warcraft Tavern: Forever stats</a>. <span class="note">G</span></li>
+      <li id="s36"><a href="https://conquestcapped.com/guides/wow-forever/wow-forever-raid-buffs/">ConquestCapped: Forever raid buffs</a>. <span class="note">G</span></li>
+      <li id="s37"><a href="https://conquestcapped.com/guides/wow-forever/wow-forever-roadmap/">ConquestCapped: Forever roadmap</a>. <span class="note">G</span></li>
+      <li id="s38"><a href="https://www.warcrafttavern.com/forever/guides/raids/">Warcraft Tavern: Forever raids</a>. <span class="note">G</span></li>
+      <li id="s39"><a href="https://github.com/vmangos/core">VMaNGOS core</a>, server source, commit 316e886. <span class="note">V</span></li>
+      <li id="s40"><a href="https://github.com/brotalnia/database">VMaNGOS world database</a>. <span class="note">V</span></li>
+      <li id="s41">World of Warcraft 1.12 game client: spell and icon tables and loading screens, read from the client's own data files. <span class="note">D</span></li>
+    </ol>
   </div>
-  <ol class="src">
-    <li id="s1"><a href="https://warcraft.wiki.gg/wiki/Resistance">Warcraft Wiki: Resistance</a>. Formulas, 75% cap, level term, binary rule, partial slices, pre-Cataclysm miss table, patch history. <span class="note">Grade D</span></li>
-    <li id="s2"><a href="https://warcraft.wiki.gg/wiki/Resistances">Warcraft Wiki: Resistances</a>. Schools, no holy stat, level resistance doesn't apply to binary spells. <span class="note">D</span></li>
-    <li id="s3"><a href="https://warcraft.wiki.gg/wiki/Spell_hit">Warcraft Wiki: Spell hit</a>. 99% cap before 3.0.2, later-era hit table. <span class="note">D</span></li>
-    <li id="s4"><a href="https://warcraft.wiki.gg/wiki/Talk:Resistance">Warcraft Wiki: Talk:Resistance</a>. Player reports, including that snaring frost spells don't partially resist. <span class="note">G</span></li>
-    <li id="s5"><a href="https://us.forums.blizzard.com/en/wow/t/did-ahnqiraj-bosses-have-75-resistance-in-vanilla/514529">Blizzard forums: "Did Ahn'Qiraj bosses have 75% resistance in vanilla?" (2020)</a>. Players only, no staff reply. <span class="note">G</span></li>
-    <li id="s6"><a href="https://us.forums.blizzard.com/en/wow/t/partial-resist-checks-on-dots/484801">Blizzard forums: "Partial resist checks on DoTs" (Apr–Nov 2020)</a>. <span class="note">G</span></li>
-    <li id="s7"><a href="https://www.warcrafttavern.com/wow-classic/guides/mc">Warcraft Tavern: Molten Core guide</a>. <span class="note">G</span></li>
-    <li id="s8"><a href="https://www.warcrafttavern.com/wow-classic/guides/fire-resistance/">Warcraft Tavern: Fire Resistance guide</a>. <span class="note">G</span></li>
-    <li id="s9"><a href="https://warcraft.wiki.gg/wiki/Ragnaros_(tactics)">Warcraft Wiki: Ragnaros (tactics)</a>. <span class="note">D/G</span></li>
-    <li id="s10"><a href="https://warcraft.wiki.gg/wiki/Baron_Geddon">Warcraft Wiki: Baron Geddon</a>. <span class="note">D</span></li>
-    <li id="s11"><a href="https://warcraft.wiki.gg/wiki/Vaelastrasz_the_Corrupt">Warcraft Wiki: Vaelastrasz the Corrupt</a>. <span class="note">D/G</span></li>
-    <li id="s12"><a href="https://warcraft.wiki.gg/wiki/Chromaggus">Warcraft Wiki: Chromaggus</a>. <span class="note">D</span></li>
-    <li id="s13"><a href="https://warcraft.wiki.gg/wiki/Nefarian_(tactics)">Warcraft Wiki: Nefarian (tactics)</a>. <span class="note">D/G</span></li>
-    <li id="s14"><a href="https://warcraft.wiki.gg/wiki/Onyxia_Scale_Cloak">Warcraft Wiki: Onyxia Scale Cloak</a>. Classic stats in "Other versions". <span class="note">D</span></li>
-    <li id="s15"><a href="https://warcraft.wiki.gg/wiki/Princess_Huhuran">Warcraft Wiki: Princess Huhuran</a>. <span class="note">D/G</span></li>
-    <li id="s16"><a href="https://warcraft.wiki.gg/wiki/Viscidus">Warcraft Wiki: Viscidus</a>. <span class="note">D/G</span></li>
-    <li id="s17"><a href="https://warcraft.wiki.gg/wiki/Sapphiron_(Classic)">Warcraft Wiki: Sapphiron (Classic)</a>. <span class="note">D/G</span></li>
-    <li id="s18"><a href="https://warcraft.wiki.gg/wiki/Kel%27Thuzad_(Classic)">Warcraft Wiki: Kel'Thuzad (Classic)</a>. <span class="note">D/G</span></li>
-    <li id="s19"><a href="https://warcraft.wiki.gg/wiki/Loatheb_(Classic)">Warcraft Wiki: Loatheb (Classic)</a>. <span class="note">D</span></li>
-    <li id="s20"><a href="https://www.wowhead.com/news/how-important-is-nature-resistance-gear-in-classic-temple-of-ahnqiraj-317307">Wowhead: How important is nature resistance gear in Classic AQ40? (6 Aug 2020)</a>. <span class="note">G</span></li>
-    <li id="s21"><a href="https://warcraft.wiki.gg/wiki/Fire_Resistance_Aura">Warcraft Wiki: Fire Resistance Aura</a>. Classic max rank +60. Also <a href="https://warcraft.wiki.gg/wiki/Frost_Resistance_Aura">Frost</a> (+60). <span class="note">D</span></li>
-    <li id="s22"><a href="https://warcraft.wiki.gg/wiki/Shadow_Resistance_Aura">Warcraft Wiki: Shadow Resistance Aura</a>. +60, doesn't stack with Prayer of Shadow Protection. <span class="note">D</span></li>
-    <li id="s23"><a href="https://warcraft.wiki.gg/wiki/Fire_Resistance_Totem">Warcraft Wiki: Fire Resistance Totem</a>. +60, party within 20 yd, 2 min. <span class="note">D</span></li>
-    <li id="s24"><a href="https://warcraft.wiki.gg/wiki/Nature_Resistance_Totem">Warcraft Wiki: Nature Resistance Totem</a>. +60. <span class="note">D</span></li>
-    <li id="s25"><a href="https://warcraft.wiki.gg/wiki/Gift_of_the_Wild_(Classic)">Warcraft Wiki: Gift of the Wild (Classic)</a>. Rank 1 +15 all resistances, rank 2 +20. <span class="note">D</span></li>
-    <li id="s26"><a href="https://warcraft.wiki.gg/wiki/Prayer_of_Shadow_Protection">Warcraft Wiki: Prayer of Shadow Protection</a>. +60 shadow. <span class="note">D</span></li>
-    <li id="s27"><a href="https://warcraft.wiki.gg/wiki/Greater_Fire_Protection_Potion">Warcraft Wiki: Greater Fire Protection Potion</a>. Absorbs 1,950–3,250. Patch 2.1.0 cut the duration from 1 hour to 2 min. <span class="note">D</span></li>
-    <li id="s28"><a href="https://warcraft.wiki.gg/wiki/Greater_Nature_Protection_Potion">Warcraft Wiki: Greater Nature Protection Potion</a>. <span class="note">D</span></li>
-    <li id="s29"><a href="https://news.blizzard.com/en-gb/article/24303009/world-of-warcraft-forever-raid-overviewlocations-raid-sizes-and-attunement">Blizzard: World of Warcraft: Forever raid overview: locations, raid sizes and attunement</a>. <span class="note">B</span></li>
-    <li id="s30"><a href="https://www.warcrafttavern.com/forever/guides/overview/">Warcraft Tavern: WoW Forever overview</a>. <span class="note">B via G</span></li>
-    <li id="s31"><a href="https://warcraft.wiki.gg/wiki/World_of_Warcraft:_Forever">Warcraft Wiki: World of Warcraft: Forever</a>. Roadmap, raid table, statements attributed to Blizzard. <span class="note">B via D</span></li>
-    <li id="s32"><a href="https://www.dlcompare.com/gaming-news/wow-forever-could-be-the-classic-fans-have-wanted-83833">DLCompare: WoW Forever, everything you need to know</a>. <span class="note">B via G</span></li>
-    <li id="s33"><a href="https://conquestcapped.com/guides/wow-forever/wow-forever-gearing-progression/">ConquestCapped: WoW Forever gearing guide (7 Nov 2026)</a>. <span class="note">G</span></li>
-    <li id="s34"><a href="https://conquestcapped.com/guides/wow-forever/wow-forever-hit-cap/">ConquestCapped: WoW Forever hit cap (2 Nov 2026, from the Oct beta)</a>. <span class="note">G</span></li>
-    <li id="s35"><a href="https://www.warcrafttavern.com/forever/guides/stats/">Warcraft Tavern: WoW Forever stats &amp; attributes</a>. <span class="note">G</span></li>
-    <li id="s36"><a href="https://conquestcapped.com/guides/wow-forever/wow-forever-raid-buffs/">ConquestCapped: WoW Forever raid buffs (2 Nov 2026)</a>. <span class="note">G</span></li>
-    <li id="s37"><a href="https://conquestcapped.com/guides/wow-forever/wow-forever-roadmap/">ConquestCapped: WoW Forever roadmap (10 Nov 2026)</a>. <span class="note">G</span></li>
-    <li id="s38"><a href="https://www.warcrafttavern.com/forever/guides/raids/">Warcraft Tavern: WoW Forever raids</a>. <span class="note">G</span></li>
-  </ol>
 </section>
 
-<footer>Built from public sources. The simulator runs the documented formulas in your browser. Nothing on this page is official Blizzard data unless it is graded B.<br>Fan-made reference, not affiliated with Blizzard Entertainment. Researched and written with help from an AI assistant. Corrections are welcome as GitHub issues.</footer>
+<footer>Fan-made reference, not affiliated with Blizzard Entertainment. Loading-screen art and icons are © Blizzard Entertainment, taken from the 1.12 client and used for non-commercial reference.<br>Researched and written with help from an AI assistant. Corrections are welcome as <a href="https://github.com/zmarotrix/resistance-ledger/issues">GitHub issues</a>.</footer>
 
-<script>
-(function(){
-"use strict";
-const $ = s => document.querySelector(s);
-const NS = "http://www.w3.org/2000/svg";
-const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim() || "#888"; }
-function el(tag, attrs, parent, text){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; if (parent) parent.appendChild(e); return e; }
-function clear(svg){ while (svg.firstChild) svg.removeChild(svg.firstChild); }
-const fmt = (n, d=0) => n.toLocaleString("en-US", {minimumFractionDigits:d, maximumFractionDigits:d});
-
-/* ---------- mechanics ---------- */
-function missChance(diff){ // pre-Cataclysm PvE table, % miss
-  if (diff <= 0) return Math.max(1, 4 + diff);
-  if (diff === 1) return 5;
-  if (diff === 2) return 6;
-  return 17 + 11 * (diff - 3);
-}
-function avgResist(R, casterLevel){ return Math.min(0.75, Math.max(0, R) / (Math.max(20, casterLevel) * 5) * 0.75); }
-function sliceDist(AR, model){
-  if (model === "A"){
-    const xs = [0, .25, .5, .75, 1]; const p = [0,0,0,0,0];
-    const k = Math.min(3, Math.floor(AR / .25 + 1e-9)); const frac = (AR - k * .25) / .25;
-    p[k] += 1 - frac; if (k + 1 < 5) p[k + 1] += frac;
-    return {xs, p};
-  }
-  const xs = [], p = []; let s = 0;
-  for (let i = 0; i <= 10; i++){ const x = i / 10; const v = Math.max(0, .5 - 2.5 * Math.abs(x - AR)); xs.push(x); p.push(v); s += v; }
-  return {xs, p: p.map(v => v / s)};
-}
-
-/* ---------- chart helpers ---------- */
-function frame(svg, o){
-  clear(svg);
-  const vb = svg.viewBox.baseVal; const W = vb.width, H = vb.height;
-  const m = Object.assign({l:56, r:18, t:18, b:46}, o.m || {});
-  const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const X = v => m.l + (v - o.x0) / (o.x1 - o.x0) * iw;
-  const Y = v => m.t + ih - (v - o.y0) / (o.y1 - o.y0) * ih;
-  const g = el("g", {class:"grid"}, svg), a = el("g", {class:"axis"}, svg);
-  (o.yt || []).forEach(t => { el("line", {x1:m.l, x2:W - m.r, y1:Y(t), y2:Y(t)}, g); el("text", {x:m.l - 8, y:Y(t) + 4, "text-anchor":"end"}, a, o.yf ? o.yf(t) : t); });
-  (o.xt || []).forEach(t => { el("text", {x:X(t), y:H - m.b + 18, "text-anchor":"middle"}, a, o.xf ? o.xf(t) : t); });
-  if (o.xl) el("text", {class:"title", x:m.l + iw / 2, y:H - 6, "text-anchor":"middle"}, a, o.xl);
-  if (o.yl) el("text", {class:"title", x:14, y:m.t + ih / 2, "text-anchor":"middle", transform:`rotate(-90 14 ${m.t + ih / 2})`}, a, o.yl);
-  return {X, Y, m, iw, ih, W, H};
-}
-
-/* ---------- hero canvas ---------- */
-(function hero(){
-  const c = $("#heroCanvas"); const ctx = c.getContext("2d");
-  let W, H, dpr, bolts = [], texts = [], t0 = performance.now(), visible = true;
-  const schools = ["--fire","--frost","--nature","--shadow","--arcane"];
-  function size(){ dpr = Math.min(2, window.devicePixelRatio || 1); const r = c.getBoundingClientRect(); W = r.width; H = r.height; c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
-  size(); window.addEventListener("resize", size);
-  function outcome(){
-    const AR = 0.5; if (Math.random() < .17) return {t:"Resist (miss)", c:"--muted"};
-    const d = sliceDist(AR, "A"); let r = Math.random(), i = 0; while (i < d.p.length - 1 && r > d.p[i]){ r -= d.p[i]; i++; }
-    const x = d.xs[i]; if (x >= 1) return {t:"Resisted", c:"--bad"};
-    const dmg = Math.round(1000 * (1 - x)); return {t: x ? `${dmg} (${Math.round(1000 * x)} resisted)` : `${dmg}`, c: x ? "--warn" : "--good"};
-  }
-  function spawn(){ const s = schools[Math.floor(Math.random() * schools.length)]; bolts.push({x:-10, y:H * (.15 + Math.random() * .7), vx: 2.2 + Math.random() * 1.6, s, trail:[]}); }
-  function draw(now){
-    ctx.clearRect(0, 0, W, H);
-    const cx = W * .78, cy = H * .5, R = Math.min(W, H) * .2;
-    // ward
-    ctx.save(); ctx.translate(cx, cy); ctx.strokeStyle = css("--accent"); ctx.globalAlpha = .9; ctx.lineWidth = 1.5;
-    const rot = reduce ? 0 : now / 6000;
-    for (let k = 0; k < 3; k++){ ctx.beginPath(); ctx.arc(0, 0, R * (1 - k * .22), 0, Math.PI * 2); ctx.stroke(); }
-    ctx.rotate(rot);
-    for (let i = 0; i < 5; i++){ const a = i / 5 * Math.PI * 2; ctx.fillStyle = css(schools[i]); ctx.beginPath(); ctx.arc(Math.cos(a) * R, Math.sin(a) * R, 6, 0, Math.PI * 2); ctx.fill(); }
-    ctx.beginPath(); for (let i = 0; i <= 5; i++){ const a = (i * 2 % 5) / 5 * Math.PI * 2; const px = Math.cos(a) * R * .78, py = Math.sin(a) * R * .78; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); } ctx.globalAlpha = .45; ctx.stroke();
-    ctx.restore();
-    // bolts
-    bolts.forEach(b => {
-      b.x += b.vx * 2; const ty = cy + (b.y - cy) * Math.max(0, 1 - b.x / cx); b.cy = ty; b.trail.push([b.x, ty]); if (b.trail.length > 14) b.trail.shift();
-      ctx.strokeStyle = css(b.s); ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.globalAlpha = .7; ctx.beginPath(); b.trail.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke();
-      ctx.globalAlpha = 1; ctx.fillStyle = css(b.s); ctx.beginPath(); ctx.arc(b.x, ty, 5, 0, Math.PI * 2); ctx.fill();
-      if (b.x > cx - R * .95){ b.dead = true; const o = outcome(); texts.push({x:cx - R * .4 + (Math.random() - .5) * R, y:cy - R * .2, life:1, ...o}); }
-    });
-    bolts = bolts.filter(b => !b.dead);
-    texts.forEach(t => { t.y -= .6; t.life -= .009; ctx.globalAlpha = Math.max(0, t.life); ctx.fillStyle = css(t.c); ctx.font = `600 ${Math.max(12, W / 34)}px "IBM Plex Mono", monospace`; ctx.textAlign = "center"; ctx.fillText(t.t, t.x, t.y); });
-    texts = texts.filter(t => t.life > 0); ctx.globalAlpha = 1;
-  }
-  if (reduce){ bolts = []; draw(0); texts = [{x:W*.6,y:H*.3,life:1,t:"612 (408 resisted)",c:"--warn"},{x:W*.62,y:H*.45,life:1,t:"Resist (miss)",c:"--muted"},{x:W*.6,y:H*.62,life:1,t:"1000",c:"--good"}]; draw(0); return; }
-  // pre-populate so the first frame isn't empty
-  for (let i = 0; i < 4; i++){ spawn(); bolts[i].x = 40 + i * W * .15; }
-  texts.push({x:W*.62, y:H*.35, life:.9, t:"500 (500 resisted)", c:"--warn"});
-  let last = 0;
-  const io = new IntersectionObserver(es => { visible = es[0].isIntersecting; }); io.observe(c);
-  function loop(now){ if (visible){ if (now - last > 520){ spawn(); last = now; } draw(now); } requestAnimationFrame(loop); }
-  draw(0); requestAnimationFrame(loop);
-})();
-
-/* ---------- frieze ---------- */
-(function frieze(){
-  const items = [
-    ["--fire","flame","Ragnaros","MT 315 fire"], ["--fire","flame","Vaelastrasz","DPS 180 fire"], ["--arcane","star","Chromaggus","Time Lapse: arcane"],
-    ["--shadow","eye","Nefarian","Onyxia Scale Cloak"], ["--nature","leaf","Huhuran","15 nature soaks"], ["--nature","leaf","Viscidus","nature potion"],
-    ["--frost","snow","Sapphiron","~150 frost avg"], ["--frost","snow","Kel'Thuzad","frost gear not advised"], ["--shadow","eye","Loatheb","unresistable"], ["--fire","flame","Onyxia","Forever: build fire res"]
-  ];
-  const glyph = {
-    flame:'<path d="M28 6c4 9 13 13 13 25a13 13 0 0 1-26 0c0-6 3-9 6-12 0 5 2 8 5 9-2-8 0-15 2-22z" fill="currentColor"/>',
-    snow:'<g stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M28 6v44M9 17l38 22M9 39l38-22"/><path d="M22 10l6 5 6-5M22 46l6-5 6 5"/></g>',
-    leaf:'<path d="M10 44C10 22 26 10 48 9c0 22-12 37-33 37" fill="currentColor"/><path d="M12 46 36 22" stroke="var(--bg2)" stroke-width="2.5"/>',
-    eye:'<path d="M5 28c8-12 38-12 46 0-8 12-38 12-46 0z" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="28" cy="28" r="7" fill="currentColor"/>',
-    star:'<path d="M28 5l5 17 17 6-17 6-5 17-5-17-17-6 17-6z" fill="currentColor"/>'
-  };
-  const html = items.map(([c, g, n, s]) => `<div class="fz" style="color:var(${c})"><svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26" fill="none" stroke="currentColor" stroke-opacity=".35"/>${glyph[g]}</svg><div><b style="color:var(--ink)">${n}</b><span>${s}</span></div></div>`).join("");
-  $("#frieze").innerHTML = html + html.replace(/<div class="fz"/g, '<div class="fz" aria-hidden="true"');
-})();
-
-/* ---------- pipeline diagram ---------- */
-(function pipe(){
-  const svg = $("#pipe");
-  const N = {
-    cast:{x:180,y:10,w:200,h:50,t:"Spell cast",s:"caster level · school"},
-    hit:{x:180,y:110,w:200,h:56,t:"Roll 1: hit table",s:"miss 4–17%+ by level gap"},
-    miss:{x:410,y:110,w:140,h:56,t:"Miss",s:"logged as Resist"},
-    type:{x:180,y:220,w:200,h:50,t:"Binary effect?",s:"slow · fear · debuff"},
-    bin:{x:10,y:330,w:220,h:60,t:"Roll 2: full-resist chance",s:"chance = average resist"},
-    dmg:{x:330,y:330,w:220,h:60,t:"Roll 2: partial slice",s:"0 · 25 · 50 · 75 · 100%"},
-    land:{x:10,y:450,w:105,h:50,t:"Lands",s:"full effect"},
-    res:{x:125,y:450,w:105,h:50,t:"Resisted",s:"no effect"},
-    part:{x:330,y:450,w:220,h:50,t:"Damage × (1 − slice)",s:"mean = 1 − average resist"}
-  };
-  const E = [["cast","hit",""],["hit","miss","miss"],["hit","type","hit"],["type","bin","yes"],["type","dmg","no"],["bin","land",""],["bin","res",""],["dmg","part",""]];
-  const edges = {};
-  E.forEach(([a, b, l]) => {
-    const A = N[a], B = N[b]; let d, lx, ly;
-    if (B.y === A.y){ d = `M${A.x + A.w} ${A.y + A.h/2} H${B.x}`; lx = (A.x + A.w + B.x) / 2; ly = A.y + A.h/2 - 6; }
-    else { const x1 = A.x + A.w/2, y1 = A.y + A.h, x2 = B.x + B.w/2, y2 = B.y; const my = (y1 + y2) / 2; d = `M${x1} ${y1} V${my} H${x2} V${y2}`; lx = (x1 + x2) / 2 + (x2 < x1 ? -14 : x2 > x1 ? 14 : 10); ly = my - 6; }
-    edges[a + ">" + b] = el("path", {class:"edge", d, "marker-end":"url(#arr)"}, svg);
-    if (l) el("text", {class:"lbl", x:lx, y:ly, "text-anchor":"middle"}, svg, l);
-  });
-  const defs = el("defs", {}, svg); const mk = el("marker", {id:"arr", viewBox:"0 0 10 10", refX:"9", refY:"5", markerWidth:"7", markerHeight:"7", orient:"auto-start-reverse"}, defs); el("path", {d:"M0 0L10 5L0 10z", fill:"var(--muted)"}, mk);
-  const nodes = {};
-  for (const k in N){ const n = N[k]; const g = el("g", {class:"node"}, svg); el("rect", {x:n.x, y:n.y, width:n.w, height:n.h, rx:6}, g); el("text", {x:n.x + n.w/2, y:n.y + n.h/2 - 3, "text-anchor":"middle"}, g, n.t); el("text", {class:"sub", x:n.x + n.w/2, y:n.y + n.h/2 + 14, "text-anchor":"middle"}, g, n.s); nodes[k] = g; }
-  const S = [ {n:["cast"], e:[]}, {n:["cast","hit","miss"], e:["cast>hit","hit>miss"]}, {n:["hit","type"], e:["hit>type"]}, {n:["type","bin","land","res"], e:["type>bin","bin>land","bin>res"]}, {n:["type","dmg","part"], e:["type>dmg","dmg>part"]} ];
-  function show(i){ for (const k in nodes) nodes[k].classList.toggle("on", S[i].n.includes(k)); for (const k in edges) edges[k].classList.toggle("on", S[i].e.includes(k)); document.querySelectorAll(".scrolly .step").forEach(s => s.classList.toggle("on", +s.dataset.step === i)); }
-  show(0);
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) show(+e.target.dataset.step); }), {rootMargin:"-45% 0px -45% 0px"});
-  document.querySelectorAll(".scrolly .step").forEach(s => io.observe(s));
-})();
-
-/* ---------- hit chart ---------- */
-function drawHit(){
-  const hit = +$("#hitSlider").value; $("#hitOut").textContent = "+" + hit + "%";
-  const svg = $("#hitChart"); const diffs = [0,1,2,3,4,5];
-  const f = frame(svg, {x0:-.5, x1:5.5, y0:0, y1:40, yt:[0,10,20,30,40], yf:t => t + "%", xt:diffs, xf:t => t ? "+" + t : "0", xl:"Target level minus caster level", yl:"Chance to miss"});
-  const bw = f.iw / 6 * .56;
-  diffs.forEach(d => {
-    const m = missChance(d), r = Math.max(1, m - hit);
-    const col = d === 3 ? css("--bad") : css("--muted");
-    el("rect", {x:f.X(d) - bw/2, y:f.Y(m), width:bw, height:f.Y(0) - f.Y(m), fill:col, opacity:.28}, svg);
-    el("rect", {x:f.X(d) - bw/2, y:f.Y(r), width:bw, height:f.Y(0) - f.Y(r), fill:"none", stroke:col, "stroke-width":2}, svg);
-    el("text", {class:"lab", x:f.X(d), y:f.Y(m) - 6, "text-anchor":"middle", fill:css("--ink")}, svg, m + "%" + (hit ? " → " + r + "%" : ""));
-  });
-  el("line", {x1:f.m.l, x2:f.W - f.m.r, y1:f.Y(1), y2:f.Y(1), stroke:css("--accent"), "stroke-dasharray":"4 4"}, svg);
-  el("text", {class:"lab", x:f.W - f.m.r, y:f.Y(1) - 6, "text-anchor":"end", fill:css("--accent")}, svg, "1% floor (99% hit cap)");
-  el("text", {class:"lab", x:f.X(3), y:f.Y(40) + 12, "text-anchor":"middle", fill:css("--bad")}, svg, "raid boss");
-}
-$("#hitSlider").addEventListener("input", drawHit);
-
-/* ---------- AR chart ---------- */
-function drawAR(){
-  const R = +$("#arSlider").value; $("#arOut").textContent = R;
-  const svg = $("#arChart");
-  const f = frame(svg, {x0:0, x1:400, y0:0, y1:.8, yt:[0,.25,.5,.75], yf:t => Math.round(t*100) + "%", xt:[0,100,200,300,400], xl:"Resistance", yl:"Average resistance"});
-  [[60, "--frost", "level-60 caster (player)"], [63, "--fire", "level-63 caster (raid boss)"]].forEach(([L, c, name], i) => {
-    let d = ""; for (let r = 0; r <= 400; r += 5){ d += (r ? "L" : "M") + f.X(r) + " " + f.Y(avgResist(r, L)); }
-    el("path", {d, fill:"none", stroke:css(c), "stroke-width":2.5}, svg);
-    const cap = L * 5; el("circle", {cx:f.X(cap), cy:f.Y(.75), r:4, fill:css(c)}, svg);
-    el("text", {class:"lab", x:f.X(cap) + (i ? 6 : -6), y:f.Y(.75) + (i ? 18 : -10), "text-anchor":i ? "start" : "end", fill:css(c)}, svg, cap + " → 75% · " + name);
-  });
-  const a60 = avgResist(R, 60), a63 = avgResist(R, 63);
-  el("line", {x1:f.X(R), x2:f.X(R), y1:f.Y(0), y2:f.Y(.8), stroke:css("--accent"), "stroke-dasharray":"3 4"}, svg);
-  el("circle", {cx:f.X(R), cy:f.Y(a63), r:5, fill:css("--bg"), stroke:css("--fire"), "stroke-width":2}, svg);
-  el("circle", {cx:f.X(R), cy:f.Y(a60), r:5, fill:css("--bg"), stroke:css("--frost"), "stroke-width":2}, svg);
-  const left = R > 250;
-  el("text", {class:"lab", x:f.X(R) + (left ? -8 : 8), y:f.Y(Math.min(a60, a63)) + 22, "text-anchor":left ? "end" : "start", fill:css("--ink")}, svg, `${R}: ${(a63*100).toFixed(1)}% vs boss · ${(a60*100).toFixed(1)}% vs player`);
-}
-$("#arSlider").addEventListener("input", drawAR);
-
-/* ---------- partial chart ---------- */
-let partModel = "A";
-function drawPart(){
-  const AR = +$("#partSlider").value / 100; $("#partOut").textContent = Math.round(AR*100) + "%";
-  const d = sliceDist(AR, partModel); const svg = $("#partChart");
-  const f = frame(svg, {x0:-.06, x1:1.06, y0:0, y1:1, yt:[0,.25,.5,.75,1], yf:t => Math.round(t*100) + "%", xt:d.xs.filter((x, i) => partModel === "A" || i % 2 === 0), xf:t => Math.round(t*100) + "%", xl:"Share of damage resisted", yl:"Chance"});
-  const bw = (partModel === "A" ? .16 : .07) * f.iw;
-  d.xs.forEach((x, i) => { const p = d.p[i]; el("rect", {x:f.X(x) - bw/2, y:f.Y(p), width:bw, height:f.Y(0) - f.Y(p), fill:css("--accent"), opacity:.85}, svg); if (p > .005) el("text", {class:"lab", x:f.X(x), y:f.Y(p) - 6, "text-anchor":"middle", fill:css("--ink")}, svg, Math.round(p*100) + "%"); });
-  const mean = d.xs.reduce((s, x, i) => s + x * d.p[i], 0);
-  el("line", {x1:f.X(AR), x2:f.X(AR), y1:f.Y(0), y2:f.Y(1), stroke:css("--fire"), "stroke-width":2, "stroke-dasharray":"5 4"}, svg);
-  el("text", {class:"lab", x:f.X(AR) + 6, y:f.Y(.95), fill:css("--fire")}, svg, `average resist ${Math.round(AR*100)}%  ·  model mean ${(mean*100).toFixed(1)}%`);
-}
-$("#partSlider").addEventListener("input", drawPart);
-function setModel(m){ partModel = m; $("#mA").setAttribute("aria-pressed", m === "A"); $("#mB").setAttribute("aria-pressed", m === "B"); drawPart(); }
-$("#mA").addEventListener("click", () => setModel("A")); $("#mB").addEventListener("click", () => setModel("B"));
-
-/* ---------- binary vs damage ---------- */
-function drawBin(){
-  const R = +$("#arSlider").value; $("#binR").textContent = R;
-  const svg = $("#binChart"); const AR = avgResist(R, 60 + 3); const miss = missChance(-3) / 100; // boss (63) casting on 60: target lower
-  const hitP = 1 - miss;
-  const f = frame(svg, {x0:0, x1:2, y0:0, y1:100, yt:[0,25,50,75,100], xt:[], m:{l:48, b:40}, yl:"Casts out of 100"});
-  const cols = [{n:"Binary", segs:[[hitP*(1-AR)*100, "--good", "full effect"], [hitP*AR*100, "--bad", "fully resisted"], [miss*100, "--muted", "missed"]]},
-               {n:"Damage", segs:[[hitP*100, "--warn", `hit, avg ${Math.round(AR*100)}% resisted`], [miss*100, "--muted", "missed"]]}];
-  cols.forEach((c, i) => {
-    const x = f.X(.5 + i), w = f.iw * .28; let acc = 0;
-    c.segs.forEach(([v, col, lab]) => { if (v <= 0) return; el("rect", {x:x - w/2, y:f.Y(acc + v), width:w, height:f.Y(acc) - f.Y(acc + v), fill:css(col), opacity:.85}, svg); if (v > 6) el("text", {class:"lab", x, y:(f.Y(acc) + f.Y(acc + v)) / 2 + 4, "text-anchor":"middle", fill:css("--bg")}, svg, Math.round(v) + " " + lab.split(",")[0]); acc += v; });
-    el("text", {class:"lab", x, y:f.H - 18, "text-anchor":"middle", fill:css("--ink")}, svg, c.n);
-  });
-  el("text", {class:"lab", x:f.W - 8, y:f.Y(100) + 2, "text-anchor":"end", fill:css("--muted")}, svg, `same average loss: ${(AR*100).toFixed(1)}%`);
-}
-$("#arSlider").addEventListener("input", drawBin);
-
-/* ---------- simulator ---------- */
-const sim = {lvl:5, type:"dmg", model:"A"};
-document.querySelectorAll("[data-lvl]").forEach(b => b.addEventListener("click", () => { sim.lvl = +b.dataset.lvl; document.querySelectorAll("[data-lvl]").forEach(x => x.setAttribute("aria-pressed", x === b)); runSim(); }));
-document.querySelectorAll("[data-type]").forEach(b => b.addEventListener("click", () => { sim.type = b.dataset.type; document.querySelectorAll("[data-type]").forEach(x => x.setAttribute("aria-pressed", x === b)); runSim(); }));
-document.querySelectorAll("[data-model]").forEach(b => b.addEventListener("click", () => { sim.model = b.dataset.model; document.querySelectorAll("[data-model]").forEach(x => x.setAttribute("aria-pressed", x === b)); runSim(); }));
-["#sRes","#sHit","#sPen"].forEach(id => $(id).addEventListener("input", () => { $("#sResO").textContent = $("#sRes").value; $("#sHitO").textContent = "+" + $("#sHit").value + "%"; $("#sPenO").textContent = $("#sPen").value; }));
-["#sRes","#sHit","#sPen","#sDir","#sN"].forEach(id => $(id).addEventListener("change", runSim));
-$("#sRun").addEventListener("click", runSim);
-
-function scenario(){
-  const dir = $("#sDir").value;
-  if (dir === "boss") return {Lc:63, Lt:60};
-  if (dir === "you") return {Lc:60, Lt:63};
-  return {Lc:60, Lt:60};
-}
-function theory(p){
-  const {Lc, Lt} = scenario(); const Rb = +$("#sRes").value, pen = +$("#sPen").value, hit = +$("#sHit").value;
-  const levelTerm = p.type === "bin" ? 0 : Math.max(0, Lt - Lc) * p.lvl;
-  const Reff = Rb + levelTerm - Math.min(pen, Rb);
-  const AR = avgResist(Reff, Lc);
-  const miss = Math.max(1, missChance(Lt - Lc) - hit) / 100;
-  return {Lc, Lt, Rb, Reff, AR, miss, hitP:1 - miss, levelTerm};
-}
-let rngSeed = 1;
-function runSim(){
-  const th = theory(sim); const N = +$("#sN").value; const dist = sliceDist(th.AR, sim.model);
-  const counts = {miss:0}; dist.xs.forEach(x => counts[x] = 0); let full = 0, land = 0, total = 0; const conv = []; const log = [];
-  const step = Math.max(1, Math.floor(N / 160));
-  for (let i = 1; i <= N; i++){
-    let dmg = 0, kind;
-    if (Math.random() < th.miss){ counts.miss++; kind = ["miss", "Resist (miss)"]; }
-    else if (sim.type === "bin"){ if (Math.random() < th.AR){ full++; kind = ["full", "Resisted (full)"]; } else { land++; dmg = 1000; kind = ["hit", "Lands"]; } }
-    else { let r = Math.random(), k = 0; while (k < dist.p.length - 1 && r > dist.p[k]){ r -= dist.p[k]; k++; } const x = dist.xs[k]; counts[x]++; dmg = Math.round(1000 * (1 - x)); kind = x >= 1 ? ["full", "Resisted (full)"] : x > 0 ? ["part", `${dmg} (${Math.round(1000*x)} resisted)`] : ["hit", `${dmg}`]; }
-    total += dmg; if (i % step === 0 || i === N) conv.push([i, total / i]);
-    if (i > N - 14) log.push(`<div class="${kind[0]}">#${fmt(i)}  ${kind[1]}</div>`);
-  }
-  const expected = th.hitP * (1 - th.AR) * 1000; const simAvg = total / N;
-  $("#sStats").innerHTML = [
-    ["Effective resistance", fmt(th.Reff), th.levelTerm ? `incl. +${th.levelTerm} level term` : (sim.type === "bin" && th.Lt > th.Lc ? "level term skipped (binary)" : "no level term")],
-    ["Average resist", (th.AR*100).toFixed(1) + "%", `caster level ${th.Lc}, cap at ${th.Lc*5}`],
-    ["Miss chance", (th.miss*100).toFixed(0) + "%", "roll one"],
-    ["Expected dmg / cast", fmt(expected, 1), "theory"],
-    ["Simulated dmg / cast", fmt(simAvg, 1), `${((simAvg - expected) / (expected || 1) * 100).toFixed(2)}% off over ${fmt(N)}`]
-  ].map(([k, v, d]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join("");
-  // histogram
-  const svg = $("#simHist");
-  let bars;
-  if (sim.type === "bin") bars = [["Miss", counts.miss / N, th.miss, "--muted"], ["Full resist", full / N, th.hitP * th.AR, "--bad"], ["Lands", land / N, th.hitP * (1 - th.AR), "--good"]];
-  else bars = [["Miss", counts.miss / N, th.miss, "--muted"]].concat(dist.xs.map((x, i) => [Math.round(x*100) + "%", counts[x] / N, th.hitP * dist.p[i], x >= 1 ? "--bad" : x > 0 ? "--warn" : "--good"]));
-  const ymax = Math.max(.1, ...bars.map(b => Math.max(b[1], b[2]))) * 1.15;
-  const f = frame(svg, {x0:-.5, x1:bars.length - .5, y0:0, y1:ymax, yt:[0, ymax/3, 2*ymax/3].map(v => +v.toFixed(2)), yf:t => Math.round(t*100) + "%", xt:bars.map((b, i) => i), xf:i => bars[i][0], xl:sim.type === "bin" ? "Outcome" : "Outcome (share resisted)", yl:"Share of casts"});
-  const bw = f.iw / bars.length * .6;
-  bars.forEach((b, i) => {
-    el("rect", {x:f.X(i) - bw/2, y:f.Y(b[1]), width:bw, height:f.Y(0) - f.Y(b[1]), fill:css(b[3]), opacity:.8}, svg);
-    el("line", {x1:f.X(i) - bw/2 - 4, x2:f.X(i) + bw/2 + 4, y1:f.Y(b[2]), y2:f.Y(b[2]), stroke:css("--ink"), "stroke-width":2, "stroke-dasharray":"5 3"}, svg);
-    if (b[1] > .003) el("text", {class:"lab", x:f.X(i), y:Math.min(f.Y(b[1]), f.Y(b[2])) - 6, "text-anchor":"middle", fill:css("--ink")}, svg, (b[1]*100).toFixed(1) + "%");
-  });
-  el("text", {class:"lab", x:f.W - f.m.r, y:f.m.t + 4, "text-anchor":"end", fill:css("--muted")}, svg, "bars = simulated · dashes = formula");
-  // convergence
-  const c = $("#simConv");
-  const lo = Math.min(expected, ...conv.map(p => p[1])), hi = Math.max(expected, ...conv.map(p => p[1]));
-  const pad = Math.max(20, (hi - lo) * .2);
-  const y0 = Math.max(0, lo - pad), y1 = Math.min(1000, hi + pad);
-  const g = frame(c, {x0:1, x1:N, y0, y1, yt:[y0, (y0 + y1)/2, y1].map(v => Math.round(v)), xt:[1, Math.round(N/2), N], xf:t => fmt(t), xl:"Casts so far", yl:"Avg dmg"});
-  let d = ""; conv.forEach((p, i) => d += (i ? "L" : "M") + g.X(p[0]) + " " + g.Y(p[1]));
-  el("path", {d, fill:"none", stroke:css("--accent"), "stroke-width":2.2}, c);
-  el("line", {x1:g.m.l, x2:g.W - g.m.r, y1:g.Y(expected), y2:g.Y(expected), stroke:css("--ink"), "stroke-dasharray":"6 4"}, c);
-  el("text", {class:"lab", x:g.W - g.m.r, y:g.Y(expected) - 6, "text-anchor":"end", fill:css("--ink")}, c, "formula: " + fmt(expected, 1));
-  $("#sLog").innerHTML = log.join("");
-}
-
-/* ---------- stack calculator ---------- */
-const ENC = {
-  rag:{school:"fire", name:"Elemental Fire hit", dmg:2400, every:8, src:"Elemental Fire 2,160–2,640 (midpoint) [9]", note:"Original tactics: MT 300+, 315 buffed. No one above 315 [9].", target:315},
-  vael:{school:"fire", name:"Fire Nova", dmg:600, every:3, src:"Fire Nova 555–645 (midpoint) [11]. Interval illustrative.", note:"DPS ideally 180+ FR, tanks max [11]. Fight is about 3 min.", target:180},
-  huh:{school:"nature", name:"Poison Bolt (berserk)", dmg:2000, every:3, src:"Poison Bolt 2,000 to the 15 closest, every 3 s after 30% [15]", note:"Only the 15 soaks need NR [15]. A Greater Nature Protection Potion absorbs about 2,600 [28].", target:315},
-  sap:{school:"frost", name:"Frost Aura tick", dmg:600, every:2, src:"Frost Aura 600 every 2 s, partially resistible [17]", note:"Raid averages ~150 FR unbuffed. Potion and Juju Chill required [17].", target:150},
-  nef:{school:"shadow", name:"Phase 2 AoE", dmg:1000, every:0, src:"~1,000 shadow, completely resistible [13]", note:"Shadow Flame itself needs the Onyxia Scale Cloak, not shadow resistance [13][14].", target:0}
-};
-const BUFFS = [
-  {id:"aura", label:"Paladin resistance aura +60 / Shaman resistance totem +60", v:60, schools:["fire","frost","shadow","nature"], group:"aura", src:"[21][22][23][24]"},
-  {id:"prayer", label:"Prayer of Shadow Protection +60", v:60, schools:["shadow"], group:"aura", src:"[26]"},
-  {id:"gotw", label:"Gift / Mark of the Wild +20 (rank 2)", v:20, schools:["fire","frost","shadow","nature"], src:"[25]"},
-  {id:"spell", label:"Scarshield Spellbinder buff +81", v:81, schools:["fire"], src:"[9][11]"},
-  {id:"juju", label:"Juju Ember +15", v:15, schools:["fire"], src:"[11]"},
-  {id:"emblem", label:"Blazing Emblem on use +50", v:50, schools:["fire"], src:"[11]"}
-];
-const kb = $("#kBuffs");
-BUFFS.forEach(b => { const l = document.createElement("label"); l.className = "chk"; l.innerHTML = `<input type="checkbox" id="kb_${b.id}"${b.id === "aura" || b.id === "gotw" ? " checked" : ""}><span>${b.label} <span class="mono" style="color:var(--muted);font-size:.8em">${b.src}</span></span>`; kb.appendChild(l); l.querySelector("input").addEventListener("change", drawStack); });
-["#kEnc","#kGear"].forEach(id => $(id).addEventListener("input", drawStack));
-function drawStack(){
-  const e = ENC[$("#kEnc").value]; const gear = +$("#kGear").value; $("#kGearO").textContent = gear;
-  const parts = [["Gear", gear, "--muted"]]; let usedAura = false; const skipped = [];
-  BUFFS.forEach(b => { const on = $("#kb_" + b.id).checked; $("#kb_" + b.id).disabled = !b.schools.includes(e.school); if (!on || !b.schools.includes(e.school)) return; if (b.group === "aura"){ if (usedAura){ skipped.push(b.label.split(" +")[0]); return; } usedAura = true; } parts.push([b.label.split(" +")[0].split(" / ")[0], b.v, "--" + e.school]); });
-  const total = parts.reduce((s, p) => s + p[1], 0); const AR = avgResist(total, 63);
-  const per = e.dmg * (1 - AR); const dps = e.every ? per / e.every : 0;
-  $("#kStats").innerHTML = [
-    ["Total " + e.school + " resistance", fmt(total), total > 315 ? `${total - 315} past the cap does nothing` : `${315 - total} short of 315`],
-    ["Average resist vs boss", (AR*100).toFixed(1) + "%", "level-63 caster"],
-    [e.name, fmt(per), `of ${fmt(e.dmg)} on average`],
-    e.every ? ["Damage per minute", fmt(dps * 60), `vs ${fmt(e.dmg / e.every * 60)} with 0 resistance`] : ["Hits to drop 10,000 HP", fmt(Math.ceil(10000 / per)), `vs ${Math.ceil(10000 / e.dmg)} with 0 resistance`]
-  ].map(([k, v, d]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join("");
-  const svg = $("#kBar"); const f = frame(svg, {x0:0, x1:400, y0:0, y1:1, yt:[], xt:[0,100,200,300,400], xl:"Resistance", m:{l:20, r:20, t:30, b:46}});
-  let acc = 0; parts.forEach(([n, v, c], i) => { if (v <= 0) return; const x = f.X(Math.min(400, acc)), w = f.X(Math.min(400, acc + v)) - x; el("rect", {x, y:f.Y(.75), width:Math.max(0, w), height:f.Y(.25) - f.Y(.75), fill:css(c), opacity: i ? .9 : .45, stroke:css("--bg"), "stroke-width":1.5}, svg); if (w > 44) el("text", {class:"lab", x:x + w/2, y:f.Y(.5) + 4, "text-anchor":"middle", fill:css("--ink")}, svg, `${n} ${v}`); acc += v; });
-  el("line", {x1:f.X(315), x2:f.X(315), y1:f.m.t - 8, y2:f.Y(0), stroke:css("--bad"), "stroke-width":2}, svg);
-  el("text", {class:"lab", x:f.X(315), y:f.m.t - 12, "text-anchor":"middle", fill:css("--bad")}, svg, "315 cap vs boss");
-  if (e.target && e.target !== 315){ el("line", {x1:f.X(e.target), x2:f.X(e.target), y1:f.m.t - 8, y2:f.Y(0), stroke:css("--warn"), "stroke-width":2, "stroke-dasharray":"4 3"}, svg); el("text", {class:"lab", x:f.X(e.target), y:f.m.t - 12, "text-anchor":"middle", fill:css("--warn")}, svg, "guide target " + e.target); }
-  $("#kNote").textContent = e.src + "  ·  " + e.note + (skipped.length ? `  ·  Not counted: ${skipped.join(", ")}. Only one aura or raid buff per school [1][22].` : "");
-}
-
-/* ---------- forever chart ---------- */
-function drawForever(){
-  const svg = $("#foreverChart");
-  const f = frame(svg, {x0:0, x1:40, y0:0, y1:2, yt:[], xt:[0,10,20,30,40], xl:"Players in a 40-player raid receiving a resistance aura (2 paladins)", m:{l:130, r:24, t:16, b:46}});
-  [["Classic", 10, "--muted", "2 groups × 5 = 10"], ["Forever", 40, "--accent", "whole raid = 40"]].forEach(([n, v, c, lab], i) => {
-    const y = f.Y(1.5 - i), h = f.ih * .3;
-    el("rect", {x:f.X(0), y:y - h/2, width:f.X(v) - f.X(0), height:h, fill:css(c), opacity:.85}, svg);
-    el("text", {class:"lab", x:f.m.l - 10, y:y + 4, "text-anchor":"end", fill:css("--ink")}, svg, n);
-    el("text", {class:"lab", x:f.X(v) - 8, y:y + 4, "text-anchor":"end", fill:css("--bg")}, svg, lab);
-  });
-}
-
-function drawAll(){ drawHit(); drawAR(); drawPart(); drawBin(); runSim(); drawStack(); drawForever(); }
-drawAll();
-const mq = matchMedia("(prefers-color-scheme: dark)"); mq.addEventListener && mq.addEventListener("change", drawAll);
-new MutationObserver(drawAll).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
-})();
-</script>
-
+<div id="tip" role="tooltip"></div>
+<div id="toasts" aria-live="polite"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
