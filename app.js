@@ -9,6 +9,7 @@ function el(tag, attrs, parent, text){ const e = document.createElementNS(NS, ta
 function clear(n){ while (n.firstChild) n.removeChild(n.firstChild); }
 const store = { get(k){ try { return JSON.parse(localStorage.getItem("rl_" + k)); } catch(e){ return null; } }, set(k, v){ try { localStorage.setItem("rl_" + k, JSON.stringify(v)); } catch(e){} } };
 const SC = {fire:"--fire", frost:"--frost", nature:"--nature", shadow:"--shadow", arcane:"--arcane"};
+const ICON = n => (window.RL_ICONS && window.RL_ICONS[n]) || ("img/icons/" + n + ".png");
 const cite = arr => (arr || []).map(n => `<sup class="c"><a href="#s${n}">${n}</a></sup>`).join("");
 
 /* ================= mechanics ================= */
@@ -42,7 +43,7 @@ function bindTip(node, fn){
   node.addEventListener("blur", hideTip);
 }
 function abilTip(a){ const sch = a.s[0].toUpperCase() + a.s.slice(1); return `<b>${a.n}</b><span class="s">${sch}</span><br><span class="y">${a.d}</span><br>${a.u ? '<span class="r">Unresistable</span><br>' : a.b ? '<span class="g">Binary: resistance can stop it entirely</span><br>' : '<span class="g">Partially resistible</span><br>'}<span class="s">${a.note}</span>`; }
-function abilIcon(id){ const a = RL.ABIL[id]; const s = document.createElement("span"); s.className = "ic" + (a.u ? " unres" : ""); s.tabIndex = 0; s.style.setProperty("--sc", css(SC[a.s] || "--muted")); s.setAttribute("aria-label", `${a.n}: ${a.d}${a.u ? ", unresistable" : ""}`); s.innerHTML = `<img src="img/icons/${a.i}.png" alt="" loading="lazy">`; bindTip(s, () => abilTip(a)); return s; }
+function abilIcon(id){ const a = RL.ABIL[id]; const s = document.createElement("span"); s.className = "ic" + (a.u ? " unres" : ""); s.tabIndex = 0; s.style.setProperty("--sc", css(SC[a.s] || "--muted")); s.setAttribute("aria-label", `${a.n}: ${a.d}${a.u ? ", unresistable" : ""}`); s.innerHTML = `<img src="${ICON(a.i)}" alt="" loading="lazy">`; bindTip(s, () => abilTip(a)); return s; }
 function wireVM(root){ (root || document).querySelectorAll("span.vm[data-vm]").forEach(b => { const k = b.dataset.vm, e = RL.VM[k]; if (!e) return; const a = document.createElement("a"); a.className = "vm"; a.href = "vmangos.html#ev-" + k; a.textContent = "V"; a.setAttribute("aria-label", "Checked in VMaNGOS: " + e.t); bindTip(a, () => `<b>Checked in VMaNGOS: ${e.t}</b><span class="y">${e.v}</span><br><span class="s">${e.r}</span>`); b.replaceWith(a); }); }
 
 /* ================= achievements & xp ================= */
@@ -60,7 +61,7 @@ const ACH = {
   lore:{n:"Loremaster", d:"Explored every chapter", i:"inv_misc_orb_05", p:25}
 };
 const got = new Set(store.get("ach") || []);
-function award(k){ if (got.has(k) || !ACH[k]) return; got.add(k); store.set("ach", [...got]); const a = ACH[k]; const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<img src="img/icons/${a.i}.png" alt=""><div><div class="t">Achievement earned</div><div class="n">${a.n}</div><div class="mono" style="font-size:.78rem;color:var(--muted)">${a.d}</div></div><span class="p">${a.p}</span>`; $("#toasts").appendChild(t); setTimeout(() => t.remove(), 4300); }
+function award(k){ if (got.has(k) || !ACH[k]) return; got.add(k); store.set("ach", [...got]); const a = ACH[k]; const t = document.createElement("div"); t.className = "toast"; t.innerHTML = `<img src="${ICON(a.i)}" alt=""><div><div class="t">Achievement earned</div><div class="n">${a.n}</div><div class="mono" style="font-size:.78rem;color:var(--muted)">${a.d}</div></div><span class="p">${a.p}</span>`; $("#toasts").appendChild(t); setTimeout(() => t.remove(), 4300); }
 const chapters = $$("[data-ch]"); const seen = new Set();
 function xp(){ $("#xpFill").style.width = (seen.size / chapters.length * 100) + "%"; $("#xpTxt").textContent = `${seen.size} / ${chapters.length}`; if (seen.size === chapters.length) award("lore"); }
 const navLinks = $$("nav.top a[href^='#']");
@@ -253,7 +254,7 @@ function renderRaids(){
     const w = s.querySelector(".wide");
     r.bosses.forEach(b => {
       const row = document.createElement("article"); row.className = "boss rv"; row.id = "boss-" + b.id;
-      row.innerHTML = `<div class="ic" style="width:64px;height:64px;--sc:var(${SC[r.school]})"><img src="img/icons/${b.p}.png" alt=""></div>
+      row.innerHTML = `<div class="ic" style="width:64px;height:64px;--sc:var(${SC[r.school]})"><img src="${ICON(b.p)}" alt=""></div>
         <div><h3>${b.n}</h3><div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.45rem"><span class="mono" style="font-size:.75rem;color:var(--muted);align-self:center">PROGRESSION</span>${P(b.prog)}<span class="mono" style="font-size:.75rem;color:var(--muted);align-self:center;margin-left:.4rem">FARM</span>${P(b.farm)}</div>
         <p class="quick">${b.quick}</p>
         <details class="deep"><summary><span class="lvl">Full detail</span>Numbers, sources, disagreements</summary><div class="body prose">
@@ -286,7 +287,7 @@ const BUFFS = [
   {id:"chill", n:"Juju Chill", v:15, sch:["frost"], i:"inv_misc_monsterscales_09", src:"17"},
   {id:"emblem", n:"Blazing Emblem (on use)", v:50, sch:["fire"], i:"spell_fire_firearmor", src:"11"}
 ];
-function renderBuffs(){ const h = $("#kBuffs"); BUFFS.forEach(b => { const l = document.createElement("label"); l.className = "chk"; l.innerHTML = `<input type="checkbox" id="kb_${b.id}"${b.id === "aura" || b.id === "gotw" ? " checked" : ""}><img src="img/icons/${b.i}.png" alt=""><span>${b.n} <b style="color:var(--gold)">+${b.v}</b></span><span class="src">[${b.src}]</span>`; h.appendChild(l); l.querySelector("input").addEventListener("change", drawStack); }); }
+function renderBuffs(){ const h = $("#kBuffs"); BUFFS.forEach(b => { const l = document.createElement("label"); l.className = "chk"; l.innerHTML = `<input type="checkbox" id="kb_${b.id}"${b.id === "aura" || b.id === "gotw" ? " checked" : ""}><img src="${ICON(b.i)}" alt=""><span>${b.n} <b style="color:var(--gold)">+${b.v}</b></span><span class="src">[${b.src}]</span>`; h.appendChild(l); l.querySelector("input").addEventListener("change", drawStack); }); }
 function drawStack(){
   const e = KENC[$("#kEnc").value], gear = +$("#kGear").value; $("#kGearO").textContent = gear; $("#kGear").style.setProperty("--tc", css(SC[e.school]));
   const parts = [["Gear", gear, "--muted"]];
@@ -353,6 +354,7 @@ function renderVMSummary(){ const rows = [["Miss table 4/5/6/17, +11 per level",
   $("#vmSummary").innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>Claim from the wiki and guides</th><th>VMaNGOS says</th></tr></thead><tbody>${rows.map(([a, c, b]) => `<tr><td>${a}</td><td class="${c}">${b}</td></tr>`).join("")}</tbody></table></div>`; }
 
 /* ================= init ================= */
+$$("img[src^='img/icons/']").forEach(i => { const k = i.getAttribute("src").slice(10, -4); if (window.RL_ICONS && RL_ICONS[k]) i.src = RL_ICONS[k]; });
 renderRaids(); renderBuffs(); renderMyths(); renderVMSummary(); wireVM(document);
 setEnc("rag"); drawHit(); drawAR(); drawPart(); drawPhase(); drawStack(); runSim(); drawForever();
 $$("input[type=range]").forEach(fill);
